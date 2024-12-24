@@ -1,0 +1,60 @@
+name: Sync archive to master
+
+on:
+  push:
+    branches:
+      - archive
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Filter and copy files
+        run: |
+          # Create a work directory
+          mkdir /tmp/sync_dir
+
+          # Copy files except .xz from archive branch to sync_dir
+          git checkout archive
+          rsync -av --exclude='*.xz' ./ /tmp/sync_dir/
+
+          # Switch to master branch
+          git checkout master
+
+          # Copy the files to the working tree
+          rsync -av --delete /tmp/sync_dir/ ./
+
+          # Check for changes
+          if git diff --quiet; then
+            echo "No changes to commit."
+            echo "no_changes=true" >> $GITHUB_ENV
+          else
+            echo "Changes detected."
+            git add .
+            git commit -m "Sync files from archive branch (excluding .xz files)"
+            echo "no_changes=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create Pull Request
+        if: env.no_changes == 'false'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: archive-sync
+          base: master
+          title: "Sync files from archive branch (excluding .xz files)"
+          body: |
+            This pull request syncs files from the `archive` branch to the `master` branch.
+
+            **Note**: Files with the `.xz` extension are excluded.
