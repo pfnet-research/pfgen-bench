@@ -42,7 +42,7 @@ jobs:
           else
             echo "Changes detected."
             git add -A
-            git commit -m "Sync files from archive branch (excluding .xz files)"
+            git commit -am "Sync files from archive branch (excluding .xz files)"
             echo "no_changes=false" >> $GITHUB_ENV
           fi
 
