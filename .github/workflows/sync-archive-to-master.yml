@@ -33,7 +33,7 @@ jobs:
           git checkout master
 
           # Sync files to the master working tree
-          rsync -av --delete /tmp/sync_dir/ ./
+          rsync -av --delete --exclude='.git' /tmp/sync_dir/ ./
 
           # Check for changes
           if git diff --quiet; then
