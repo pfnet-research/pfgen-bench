@@ -35,28 +35,21 @@ jobs:
           # Sync files to the main working tree
           rsync -av --delete --exclude='.git' /tmp/sync_dir/ ./
 
-          # Check for changes
-          if git diff --quiet; then
-            echo "No changes to commit."
-            echo "no_changes=true" >> $GITHUB_ENV
-          else
-            echo "Changes detected."
-            git add -A
-            git commit -am "Sync files from archive branch (excluding .xz files)"
-            echo "no_changes=false" >> $GITHUB_ENV
-          fi
+          git add -A
+          git commit -am "Sync files from archive branch (excluding .xz files)"
 
-      - name: Create Pull Request Branch
-        if: env.no_changes == 'false'
-        run: |
           # Generate a unique branch name to avoid conflicts
           BRANCH_NAME="archive-sync-$(date +%s)"
           git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          if git diff --quiet HEAD main; then
+            echo "branch_name=" >> $GITHUB_ENV
+          else
+            git push origin $BRANCH_NAME
+            echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          fi
 
       - name: Create Pull Request
-        if: env.no_changes == 'false'
+        if: env.branch_name != ''
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
