@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Git
         run: |
@@ -44,7 +46,7 @@ jobs:
           if git diff --quiet HEAD main; then
             echo "branch_name=" >> $GITHUB_ENV
           else
-            git push --set-upstream origin $BRANCH_NAME
+            git push origin $BRANCH_NAME
             echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
           fi
 
