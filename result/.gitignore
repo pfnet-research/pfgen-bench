@@ -1,0 +1,6 @@
+trial_*.jsonl
+trials.jsonl
+trials.score.jsonl
+*.tmp
+score.json
+cache/

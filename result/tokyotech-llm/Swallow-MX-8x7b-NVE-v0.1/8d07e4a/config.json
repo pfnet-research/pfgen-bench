@@ -1,0 +1,1 @@
+{"engine": "vllm", "mode": "completion", "model": "tokyotech-llm/Swallow-MX-8x7b-NVE-v0.1", "num_examples": 20, "temperature": 1.0, "top_p": 0.98}

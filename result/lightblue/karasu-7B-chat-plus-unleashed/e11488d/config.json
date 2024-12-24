@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "lightblue/karasu-7B-chat-plus-unleashed", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

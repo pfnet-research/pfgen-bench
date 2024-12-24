@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "mistralai/Mistral-7B-Instruct-v0.1", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

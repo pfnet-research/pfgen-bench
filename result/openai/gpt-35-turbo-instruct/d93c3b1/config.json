@@ -1,0 +1,1 @@
+{"engine": "azure-openai-api", "max_tokens": 300, "mode": "qa", "model": "openai/gpt-35-turbo-instruct", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}

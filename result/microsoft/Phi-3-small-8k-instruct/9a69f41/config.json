@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "microsoft/Phi-3-small-8k-instruct", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

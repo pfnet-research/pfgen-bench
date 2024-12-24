@@ -1,0 +1,1 @@
+{"engine": "hf", "max_tokens": 300, "mode": "completion", "model": "stockmark/gpt-neox-japanese-1.4b", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 1.0, "top_p": 0.98}

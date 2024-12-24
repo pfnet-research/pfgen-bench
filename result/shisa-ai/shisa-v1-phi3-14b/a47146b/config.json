@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "completion", "model": "shisa-ai/shisa-v1-phi3-14b", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 1.0, "top_p": 0.98}
