@@ -30,29 +30,16 @@ jobs:
           rsync -av --exclude='.git' --exclude='*.xz' ./ /tmp/sync_dir/
 
           # Generate a unique branch name to avoid conflicts
-          BRANCH_NAME="archive-sync-$(date +%s)"
+          echo "branch_name=archive-sync-$(date +%s)" >> $GITHUB_ENV
 
           # Switch to pull request branch
           git checkout main
-          git checkout -b $BRANCH_NAME
 
           # Sync files to the main working tree
           rsync -av --delete --exclude='.git' /tmp/sync_dir/ ./
 
-          git add -A
-          git commit --allow-empty -am "Sync files from archive branch (excluding .xz files)"
-          git log
-
-          if git diff --quiet HEAD main; then
-            echo "branch_name=" >> $GITHUB_ENV
-          else
-            git push --set-upstream origin $BRANCH_NAME
-            echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
-          fi
-
       - name: Create Pull Request
-        if: env.branch_name != ''
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.branch_name }}
