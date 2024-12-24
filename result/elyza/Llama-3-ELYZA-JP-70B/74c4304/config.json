@@ -1,0 +1,1 @@
+{"engine": "manual", "max_tokens": 300, "mode": "qa", "model": "elyza/Llama-3-ELYZA-JP-70B", "num_examples": 20, "stop": ["\n\n", "Q:"]}

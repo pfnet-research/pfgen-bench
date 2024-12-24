@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "completion", "model": "moneyforward/houou-instruction-7b-v2", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 1.0, "top_p": 0.98}

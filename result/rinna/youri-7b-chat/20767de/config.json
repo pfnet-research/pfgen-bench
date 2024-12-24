@@ -1,0 +1,1 @@
+{"chat_template": "{{ bos_token }}{% for m in messages %}{% if m['role'] == 'system' %}設定{% elif m['role'] != 'assistant' %}ユーザ{% else %}システム{% endif %}: {{ m['content'].strip() }}\n{% endfor %}システム:", "engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "rinna/youri-7b-chat", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

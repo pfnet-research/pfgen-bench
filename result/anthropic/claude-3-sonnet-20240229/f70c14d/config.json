@@ -1,0 +1,1 @@
+{"engine": "anthropic-api", "max_tokens": 300, "mode": "qa", "model": "anthropic/claude-3-sonnet-20240229", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}

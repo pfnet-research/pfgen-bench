@@ -1,0 +1,1 @@
+{"engine": "vllm", "mode": "completion", "model": "elyza/Llama-3-ELYZA-JP-8B", "num_examples": 20, "temperature": 1.0, "top_p": 0.98}

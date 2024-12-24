@@ -1,0 +1,1 @@
+{"engine": "nemotron", "max_tokens": 300, "mode": "completion", "model": "nvidia/nemotron-4-340b-instruct", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 1.0, "top_p": 0.98}

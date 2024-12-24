@@ -1,0 +1,1 @@
+{"engine": "vllm", "mode": "completion", "model": "stockmark/stockmark-100b", "num_examples": 20, "stop": ["\n\n", "Q:"], "temperature": 1.0, "top_p": 0.98}

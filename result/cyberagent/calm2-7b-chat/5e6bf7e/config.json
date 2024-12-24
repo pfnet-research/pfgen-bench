@@ -1,0 +1,1 @@
+{"chat_template": "{{ bos_token }}{% for m in messages %}{{ m['role'].upper() }}: {{ m['content'].strip() }}\n{% endfor %}ASSISTANT:", "engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "cyberagent/calm2-7b-chat", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

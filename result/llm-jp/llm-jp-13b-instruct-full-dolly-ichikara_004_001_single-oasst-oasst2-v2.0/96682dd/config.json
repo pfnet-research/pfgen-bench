@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "llm-jp/llm-jp-13b-instruct-full-dolly-ichikara_004_001_single-oasst-oasst2-v2.0", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

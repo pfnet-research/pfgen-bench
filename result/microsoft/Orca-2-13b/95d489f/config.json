@@ -1,0 +1,1 @@
+{"engine": "vllm", "mode": "completion", "model": "microsoft/Orca-2-13b", "num_examples": 20, "temperature": 1.0, "top_p": 0.98}

@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "Qwen/Qwen2-57B-A14B-Instruct", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}

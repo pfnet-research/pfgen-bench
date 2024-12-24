@@ -1,0 +1,1 @@
+{"engine": "vllm", "mode": "completion", "model": "microsoft/Phi-3-medium-4k-instruct", "num_examples": 20, "temperature": 1.0, "top_p": 0.98}

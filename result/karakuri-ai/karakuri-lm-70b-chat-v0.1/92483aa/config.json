@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "completion", "model": "karakuri-ai/karakuri-lm-70b-chat-v0.1", "num_examples": 20, "stop": ["\n\n", "Q:"], "temperature": 1.0, "top_p": 0.98}
