@@ -22,17 +22,17 @@ jobs:
 
       - name: Filter and copy files
         run: |
-          # Create a work directory
-          mkdir /tmp/sync_dir
+          # Create a temporary directory for syncing files
+          mkdir -p /tmp/sync_dir
 
-          # Copy files except .xz from archive branch to sync_dir
+          # Switch to archive branch and copy files excluding .git and .xz files
           git checkout archive
-          rsync -av --exclude='*.xz' ./ /tmp/sync_dir/
+          rsync -av --exclude='.git' --exclude='*.xz' ./ /tmp/sync_dir/
 
           # Switch to master branch
           git checkout master
 
-          # Copy the files to the working tree
+          # Sync files to the master working tree
           rsync -av --delete /tmp/sync_dir/ ./
 
           # Check for changes
@@ -46,12 +46,21 @@ jobs:
             echo "no_changes=false" >> $GITHUB_ENV
           fi
 
+      - name: Create Pull Request Branch
+        if: env.no_changes == 'false'
+        run: |
+          # Generate a unique branch name to avoid conflicts
+          BRANCH_NAME="archive-sync-$(date +%s)"
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+
       - name: Create Pull Request
         if: env.no_changes == 'false'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: archive-sync
+          branch: ${{ env.branch_name }}
           base: master
           title: "Sync files from archive branch (excluding .xz files)"
           body: |
