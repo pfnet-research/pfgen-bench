@@ -1,4 +1,4 @@
-name: Sync archive to master
+name: Sync archive to main
 
 on:
   push:
@@ -29,10 +29,10 @@ jobs:
           git checkout archive
           rsync -av --exclude='.git' --exclude='*.xz' ./ /tmp/sync_dir/
 
-          # Switch to master branch
-          git checkout master
+          # Switch to main branch
+          git checkout main
 
-          # Sync files to the master working tree
+          # Sync files to the main working tree
           rsync -av --delete --exclude='.git' /tmp/sync_dir/ ./
 
           # Check for changes
@@ -61,9 +61,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.branch_name }}
-          base: master
+          base: main
           title: "Sync files from archive branch (excluding .xz files)"
           body: |
-            This pull request syncs files from the `archive` branch to the `master` branch.
+            This pull request syncs files from the `archive` branch to the `main` branch.
 
             **Note**: Files with the `.xz` extension are excluded.
