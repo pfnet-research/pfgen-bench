@@ -29,18 +29,19 @@ jobs:
           git checkout archive
           rsync -av --exclude='.git' --exclude='*.xz' ./ /tmp/sync_dir/
 
-          # Switch to main branch
+          # Generate a unique branch name to avoid conflicts
+          BRANCH_NAME="archive-sync-$(date +%s)"
+
+          # Switch to pull request branch
           git checkout main
+          git checkout -b $BRANCH_NAME
 
           # Sync files to the main working tree
           rsync -av --delete --exclude='.git' /tmp/sync_dir/ ./
 
           git add -A
-          git commit -am "Sync files from archive branch (excluding .xz files)"
+          git commit --allow-empty -am "Sync files from archive branch (excluding .xz files)"
 
-          # Generate a unique branch name to avoid conflicts
-          BRANCH_NAME="archive-sync-$(date +%s)"
-          git checkout -b $BRANCH_NAME
           if git diff --quiet HEAD main; then
             echo "branch_name=" >> $GITHUB_ENV
           else
