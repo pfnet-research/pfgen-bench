@@ -46,7 +46,7 @@ jobs:
           if git diff --quiet HEAD main; then
             echo "branch_name=" >> $GITHUB_ENV
           else
-            git push origin $BRANCH_NAME
+            git push --set-upstream origin $BRANCH_NAME
             echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
           fi
 
