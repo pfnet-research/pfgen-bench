@@ -8,7 +8,11 @@ it minimizes the influence of differences in instructions or templates.
 Additionally, output evaluation is conducted using n-gram-based methods, enabling quick, cost-effective, and deterministic evaluations,
 unlike the LLM as a Judge approach.
 
+See more details: TBD (arxiv)
+
 pfgen-benchmark は事前学習モデル向けに設計された日本語の生成文を評価するベンチマークです。通常のベンチマークでは指示文を含むテンプレートを使いますが、このベンチマークでは多数の例示のみを行います。質問応答タスクであることや、約100字の回答、公用文に近い出力を期待していることを例示のみで伝えることで、指示文やテンプレートの差異による影響を小さくしています。また、出力文の評価は n-gram を用いた方法を用いており、LLM as a Judge の手法と異なり、短時間、低コストでかつ決定的な評価を可能にしています。
+
+詳しくはこちら： [Jxiv preprint](https://jxiv.jst.go.jp/index.php/jxiv/preprint/view/1008)
 
 ## License of LLM output
 
@@ -391,3 +395,24 @@ make
 | <code>353</code> | <code>0.0000 (±0.0000/√100)</code> | <code>[🟢 lightblue/suzume-llama-3-8B-multilingual](result/lightblue/suzume-llama-3-8B-multilingual/4b69556/README.md)</code> | <code>300.0 (±0.0)</code> | <code>0.000</code> | <code>0.000</code> | <code>0.000</code> |
 
 <!-- /leaderboard -->
+
+# Citation
+If you use this repository, please cite the following paper:
+```
+@preprint{Imos2024-pre-pfgen,
+  title={{pfgen-bench: 日本語事前学習モデルのための文章生成性能評価ベンチマーク}},
+  author={今城, 健太郎 and 平野, 正徳 and 鈴木, 脩司 and 三上, 裕明},
+  doi={10.51094/jxiv.1008},
+  year={2024}
+}
+```
+
+Or cite directory this repository:
+```
+@misc{Hirano2023-jlfh
+    title={{Preferred Generation Benchmark}},
+    author={Kentaro Imajo and Masanori Hirano and Shuji Suzuki and Hiroaki Mikami},
+    year={2024},
+    url = {https://github.com/pfnet-research/japanese-lm-fin-harness}
+}
+```
