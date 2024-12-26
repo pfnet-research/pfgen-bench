@@ -409,10 +409,10 @@ If you use this repository, please cite the following paper:
 
 Or cite directory this repository:
 ```
-@misc{Hirano2023-jlfh
+@misc{imajo2024-pfgen
     title={{Preferred Generation Benchmark}},
     author={Kentaro Imajo and Masanori Hirano and Shuji Suzuki and Hiroaki Mikami},
     year={2024},
-    url = {https://github.com/pfnet-research/japanese-lm-fin-harness}
+    url = {https://github.com/pfnet-research/pfgen-bench}
 }
 ```
