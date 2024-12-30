@@ -1,6 +1,6 @@
 # Model: weblab-GENIAC/Tanuki-8B-dpo-v1.0
 
-<!-- result.json: d80cda3a3a41362fb112bc4705f064dc5aca61fc -->
+<!-- result.json: 41ae64da823cc023c8ac58c0e04f3f729e8100e9 -->
 
 - Score: 0.694 (±0.0217/√100)
   - Fluency: 0.800 (PFN:0.3288+Titech:0.2139+Stockmark:0.2266+RAG:0.0303)
