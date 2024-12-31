@@ -1,0 +1,1 @@
+{"engine": "openai-api", "max_tokens": 300, "mode": "qa", "model": "pfnet/plamo-1.0-prime", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}
