@@ -1,0 +1,1 @@
+{"engine": "openai-api", "max_tokens": 300, "mode": "qa", "model": "mlx-community/Qwen2.5-72B-Instruct-4bit", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}
