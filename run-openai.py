@@ -57,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o",
+        default="openai/gpt-4o",
         help="OpenAI model name.",
     )
     parser.add_argument(

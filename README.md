@@ -8,11 +8,15 @@ it minimizes the influence of differences in instructions or templates.
 Additionally, output evaluation is conducted using n-gram-based methods, enabling quick, cost-effective, and deterministic evaluations,
 unlike the LLM as a Judge approach.
 
+To enable comparisons across as many models as possible, the leaderboard actively includes a wide range of models. These include openly accessible models, models mentioned in academic papers, and those announced by companies through press releases. Contributions of model outputs are encouraged, and results can be submitted via pull requests. For detailed instructions on how to contribute, please refer to the "How to Contribute" section.
+
 See more details: TBD (arxiv)
 
 pfgen-benchmark は事前学習モデル向けに設計された日本語の生成文を評価するベンチマークです。通常のベンチマークでは指示文を含むテンプレートを使いますが、このベンチマークでは多数の例示のみを行います。質問応答タスクであることや、約100字の回答、公用文に近い出力を期待していることを例示のみで伝えることで、指示文やテンプレートの差異による影響を小さくしています。また、出力文の評価は n-gram を用いた方法を用いており、LLM as a Judge の手法と異なり、短時間、低コストでかつ決定的な評価を可能にしています。
 
 詳しくはこちら： [Jxiv preprint](https://jxiv.jst.go.jp/index.php/jxiv/preprint/view/1008)
+
+できる限り多くのモデルを同じ軸で比較できるように、リーダーボードには積極的に多くのモデル掲載しています。オープンにアクセス可能なモデル、論文で言及されているモデル、企業がプレスリリースを出しているモデルなど、比較の価値があると思われるモデルについては、是非プルリクエストで出力を追加してください。追加方法については「How to contribute」を参照ください。
 
 ## License of LLM output
 
@@ -28,11 +32,17 @@ should be decided considering the trade-off between execution time and required 
 
 ```
 # Run a model using Huggingface library or vLLM.
-python ./run-hf.py --model=pfnet/plamo-13b  --num-trials=5
+python ./run-hf.py --model=pfnet/plamo-13b --num-trials=5
 
 # Evaluate output and update leaderboard.
 make
 ```
+
+## How to contribute
+
+Follow the instructions in the "How to Evaluate Model" section to run the evaluation. This process will generate config.json and trials.jsonl.xz files under the result directory. Please create a pull request containing only these two files.
+
+To ensure more accurate ranking among models, the number of executions (--num-trials) should be as many as possible, within the limit of 100 trials.
 
 ## Leaderboard
 
