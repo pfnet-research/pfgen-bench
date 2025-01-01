@@ -1,0 +1,1 @@
+{"engine": "manual", "max_tokens": 300, "mode": "qa", "model": "openai/chatgpt-o1", "num_examples": 20, "stop": ["Q:"]}
