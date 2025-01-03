@@ -1,0 +1,1 @@
+{"engine": "openai-api", "max_tokens": 300, "mode": "chat", "model": "Qwen/Qwen2.5-32B-Instruct", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}
