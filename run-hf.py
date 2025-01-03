@@ -72,6 +72,14 @@ def callback(
         else:
             raise ValueError(f"Unsupported mode: {mode}")
         try:
+            # NOTE: Workaround for models such as Tanuki-8x8B-dpo-v1.0.
+            if "token_type_ids" in inputs:
+                del inputs["token_type_ids"]
+            stop_strings = params.get("stop", [])
+            if tokenizer.eos_token is not None:
+                stop_strings.append(tokenizer.eos_token)
+            if tokenizer.bos_token is not None:
+                stop_strings.append(tokenizer.bos_token)
             outputs = model.generate(
                 **{k: v.to(model.device) for k, v in inputs.items()},
                 max_new_tokens=params.get("max_tokens", 300),
@@ -80,7 +88,7 @@ def callback(
                 top_p=params["top_p"],
                 pad_token_id=tokenizer.eos_token_id,
                 tokenizer=tokenizer,
-                stop_strings=params.get("stop", []),
+                stop_strings=stop_strings,
             )
         except Exception as e:
             print(e)
