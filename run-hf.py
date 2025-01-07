@@ -75,7 +75,7 @@ def callback(
             # NOTE: Workaround for models such as Tanuki-8x8B-dpo-v1.0.
             if "token_type_ids" in inputs:
                 del inputs["token_type_ids"]
-            stop_strings = params.get("stop", [])
+            stop_strings = params.get("stop", []).copy()
             if tokenizer.eos_token is not None:
                 stop_strings.append(tokenizer.eos_token)
             if tokenizer.bos_token is not None:
