@@ -27,17 +27,29 @@ def callback(
             ]
         elif mode == "qa":
             kwargs["messages"] = [{"role": "user", "content": task["prompt"]}]
+        elif mode == "completion":
+            kwargs["prompt"] = task["prompt"]
         else:
             raise ValueError(f"Unsupported mode: {mode}")
         try:
-            results = client.chat.completions.create(
-                model=model,
-                max_tokens=params.get("max_tokens", 500),
-                temperature=temperature,
-                stop=params.get("stop", []),
-                **kwargs,
-            )
-            yield results.choices[0].message.content.removeprefix("A:").strip()
+            if mode in ["qa", "chat"]:
+                results = client.chat.completions.create(
+                    model=params["model"],
+                    max_tokens=params.get("max_tokens", 500),
+                    temperature=temperature,
+                    stop=params.get("stop", []),
+                    **kwargs,
+                )
+                yield results.choices[0].message.content.removeprefix("A:").strip()
+            elif mode == "completion":
+                results = client.completions.create(
+                    model=params["model"],
+                    max_tokens=params.get("max_tokens", 500),
+                    temperature=temperature,
+                    stop=params.get("stop", []),
+                    **kwargs,
+                )
+                yield results.choices[0].text.strip()
         except openai.OpenAIError as e:
             print(f"API Error: {e}")
             yield None
@@ -51,7 +63,7 @@ if __name__ == "__main__":
         "--mode",
         type=str,
         default="qa",
-        choices=["chat", "qa"],
+        choices=["chat", "qa", "completion"],
         help="Which chat template to use.",
     )
     parser.add_argument(
