@@ -1,0 +1,1 @@
+{"engine": "openai-api", "max_tokens": 300, "mode": "chat", "model": "microsoft/phi-4", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}
