@@ -1,0 +1,1 @@
+{"engine": "openai-api", "max_tokens": 300, "mode": "qa", "model": "MiniMax-Text-01", "num_examples": 20, "stop": ["Q:"], "temperature": 0.0}
