@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "chat", "model": "mistralai/Mistral-Small-24B-Instruct-2501", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}
