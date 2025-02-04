@@ -172,7 +172,7 @@ def run_tasks(
                 if len(tasks) == 0:
                     break
                 for q, a in zip(task_questions, callback(tasks, parameters)):
-                    if a is None:
+                    if a is None or a == "":
                         print(f"Failed to get an answer for: {q}", file=sys.stderr)
                         time.sleep(3)
                         continue
