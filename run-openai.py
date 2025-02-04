@@ -73,7 +73,7 @@ if __name__ == "__main__":
         help="OpenAI model name.",
     )
     parser.add_argument(
-        "--temperature", type=float, default=0.0, help="Temperature for sampling."
+        "--temperature", type=float, default=1.0, help="Temperature for sampling."
     )
     parser.add_argument(
         "--num-trials", type=int, default=10, help="Number of trials to run."
