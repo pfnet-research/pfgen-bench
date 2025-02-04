@@ -1,0 +1,1 @@
+{"engine": "gemini", "max_tokens": 300, "mode": "qa", "model": "google/gemini-2.0-flash-exp", "multi_choice": false, "num_examples": 20, "stop": ["Q:"], "temperature": 1.0}
