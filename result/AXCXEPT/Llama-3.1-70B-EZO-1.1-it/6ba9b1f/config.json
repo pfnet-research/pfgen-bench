@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "completion", "model": "AXCXEPT/Llama-3.1-70B-EZO-1.1-it", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 1.0, "top_p": 0.98}
