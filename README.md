@@ -547,6 +547,20 @@ should be as many as possible, within the limit of 100 trials.
 
 <!-- /leaderboard -->
 
+# FAQ
+
+## What is the difference between the modes?
+pfgen-bench provides three types of templates: `completion`, `qa`, and `chat`.
+- `completion`: No instruction is provided. It consists solely of question-answer pairs.
+- `qa`: An instruction is included at the beginning of the user message.
+- `chat`: An instruction is placed in a system message.
+
+## Should we control the temperature?
+pfgen-bench recommends setting the temperature to 1.0.
+
+Some tasks (e.g., generating dice rolls) require a temperature of 1.0,
+and setting a lower temperature often leads to unnatural repetition.
+
 # Citation
 If you use this repository, please cite the following paper:
 ```
