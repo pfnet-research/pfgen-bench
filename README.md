@@ -1,14 +1,16 @@
 # Preferred Generation Benchmark
 
-pfgen-benchmark is a benchmark designed to evaluate Japanese text generation specifically for pretrained models.
-Unlike conventional benchmarks that use templates containing instructions, this benchmark relies solely on providing numerous examples.
+pfgen-benchmark is a benchmark designed to evaluate Japanese text generation, specifically for pretrained models.
+Unlike conventional benchmarks that use templates containing instructions, this benchmark relies solely on numerous examples.
 By conveying expectations such as the question-answering nature of the task, responses of approximately 100 characters,
 and outputs resembling formal public documents purely through examples,
 it minimizes the influence of differences in instructions or templates.
 Additionally, output evaluation is conducted using n-gram-based methods, enabling quick, cost-effective, and deterministic evaluations,
 unlike the LLM as a Judge approach.
 
-To enable comparisons across as many models as possible, the leaderboard actively includes a wide range of models. These include openly accessible models, models mentioned in academic papers, and those announced by companies through press releases. Contributions of model outputs are encouraged, and results can be submitted via pull requests. For detailed instructions on how to contribute, please refer to the "How to Contribute" section.
+To enable comparisons across as many models as possible, the leaderboard actively includes a wide range of models.
+These include openly accessible models, models cited in academic papers, and those announced by companies through press releases. Contributions of model outputs are encouraged, and results can be submitted via pull requests.
+For detailed instructions on how to contribute, please refer to the "How to Contribute" section.
 
 See more details: TBD (arxiv)
 
@@ -18,31 +20,57 @@ pfgen-benchmark は事前学習モデル向けに設計された日本語の生�
 
 できる限り多くのモデルを同じ軸で比較できるように、リーダーボードには積極的に多くのモデル掲載しています。オープンにアクセス可能なモデル、論文で言及されているモデル、企業がプレスリリースを出しているモデルなど、比較の価値があると思われるモデルについては、是非プルリクエストで出力を追加してください。追加方法については「How to contribute」を参照ください。
 
-## License of LLM output
+## License of LLM Output
 
-The license of the parts of this repository other than the output of LLM is Apache License Version 2.0.
-The license of the output of LLM depends on the license of each model.
+The license for parts of this repository, except for LLM-generated outputs, is Apache License Version 2.0.
+The license for LLM-generated outputs depends on the license of each model.
 
-## How to evaluate model
+## How to Evaluate a Model
 
-You can evaluate the model using run-hf.py (which uses transformers) or run-vllm.py (which uses vLLM).
-For detailed parameters, refer to --help.
-The --num-trials parameter, which is the number of patterns for which the model will generate answers,
+You can evaluate the model using either `run-hf.py` (which uses transformers) or `run-vllm.py` (which uses vLLM).
+For detailed parameters, refer to `--help`.
+The` --num-trials` parameter, which determines the number of patterns for which the model will generate answers,
 should be decided considering the trade-off between execution time and required accuracy.
+
+For pretrained models:
 
 ```
 # Run a model using Huggingface library or vLLM.
-python ./run-hf.py --model=pfnet/plamo-13b --num-trials=5
+python ./run-hf.py --model=llm-jp/llm-jp-3-150m --num-trials=5
 
 # Evaluate output and update leaderboard.
 make
 ```
 
-## How to contribute
+For instruction models:
 
-Follow the instructions in the "How to Evaluate Model" section to run the evaluation. This process will generate config.json and trials.jsonl.xz files under the result directory. Please create a pull request containing only these two files.
+```
+# Run a model using Huggingface library or vLLM with three templates.
+python ./run-hf.py --model=llm-jp/llm-jp-3-150m-instruct3 --num-trials=5
+python ./run-hf.py --model=llm-jp/llm-jp-3-150m-instruct3 --num-trials=5 --mode=qa
+python ./run-hf.py --model=llm-jp/llm-jp-3-150m-instruct3 --num-trials=5 --mode=chat
 
-To ensure more accurate ranking among models, the number of executions (--num-trials) should be as many as possible, within the limit of 100 trials.
+# Evaluate output and update leaderboard.
+make
+```
+
+### Command-line Arguments
+
+- `--model={{model name}}` ... The model name. (Required)
+- `--path={{path to model directory}}` ... The path to a local model directory. (Default: None)
+- `--num-trials={{number of trials}}` ... The number of trials. (Default: 10)
+- `--mode={{mode}}` ... Must be one of `completion`, `qa`, and `chat`. (Default: `completion`)
+  - `qa` and `chat` can be used only when the model has a chat template.
+  - The instruction message will be included in a user message for `qa` and in a system message for `chat`.
+
+## How to Contribute
+
+Follow the instructions in the "How to Evaluate a Model" section to run the evaluation.
+This process will generate config.json and trials.jsonl.xz files under the result directory.
+Please create a pull request containing only these two files.
+
+To ensure more accurate ranking among models, the number of executions (--num-trials)
+should be as many as possible, within the limit of 100 trials.
 
 ## Leaderboard
 
