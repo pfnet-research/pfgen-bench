@@ -12,7 +12,7 @@ To enable comparisons across as many models as possible, the leaderboard activel
 These include openly accessible models, models cited in academic papers, and those announced by companies through press releases. Contributions of model outputs are encouraged, and results can be submitted via pull requests.
 For detailed instructions on how to contribute, please refer to the "How to Contribute" section.
 
-See more details: TBD (arxiv)
+See more details: [arXiv:2502.09316](https://arxiv.org/abs/2502.09316)
 
 pfgen-benchmark は事前学習モデル向けに設計された日本語の生成文を評価するベンチマークです。通常のベンチマークでは指示文を含むテンプレートを使いますが、このベンチマークでは多数の例示のみを行います。質問応答タスクであることや、約100字の回答、公用文に近い出力を期待していることを例示のみで伝えることで、指示文やテンプレートの差異による影響を小さくしています。また、出力文の評価は n-gram を用いた方法を用いており、LLM as a Judge の手法と異なり、短時間、低コストでかつ決定的な評価を可能にしています。
 
@@ -598,6 +598,16 @@ If you use this repository, please cite the following paper:
   author={今城, 健太郎 and 平野, 正徳 and 鈴木, 脩司 and 三上, 裕明},
   doi={10.51094/jxiv.1008},
   year={2024}
+}
+@preprint{Imos2024-judge-free,
+  title={{A Judge-free LLM Open-ended Generation Benchmark Based on the Distributional Hypothesis}},
+  author={Kentaro Imajo and Masanori Hirano and Shuji Suzuki and Hiroaki Mikami},
+  year={2025},
+  eprint={2502.09316},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2502.09316},
+  doi={10.48550/arXiv.2502.09316}
 }
 ```
 
