@@ -56,11 +56,17 @@ class Callback:
         assert self.tokenizer is not None
         tokenizer = self.tokenizer
 
+        stop = params.get("stop", []).copy()
+        if tokenizer.eos_token is not None:
+            stop.append(tokenizer.eos_token)
+        if tokenizer.bos_token is not None:
+            stop.append(tokenizer.bos_token)
         sampling_params = SamplingParams(
             temperature=params["temperature"],
             top_p=params["top_p"],
             max_tokens=params.get("max_tokens", 300),
-            stop=params.get("stop", []),
+            skip_special_tokens=False,
+            stop=stop,
         )
         if mode == "completion":
             for t in tasks:
