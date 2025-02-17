@@ -18,7 +18,7 @@ class Callback:
         self.tokenizer: transformers.PreTrainedTokenizer | None = None
 
     def __call__(
-        self, tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
+        self, tasks: list[dict[str, str]], params: dict[str, typing.Any]
     ) -> typing.Iterator[typing.Optional[str]]:
         model = params.get("_path", None) or params["model"]
         mode = params["mode"]
@@ -67,6 +67,7 @@ class Callback:
             max_tokens=params.get("max_tokens", 300),
             skip_special_tokens=False,
             stop=stop,
+            seed=tasks[0].get("seed", None),
         )
         if mode == "completion":
             for t in tasks:

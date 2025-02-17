@@ -10,7 +10,7 @@ import pfgen
 
 
 def callback(
-    tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
+    tasks: list[dict[str, str]], params: dict[str, typing.Any]
 ) -> typing.Iterator[typing.Optional[str]]:
     model = params["model"].split("/")[-1]
     assert params["mode"] == "qa"

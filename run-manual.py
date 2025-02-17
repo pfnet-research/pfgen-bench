@@ -5,7 +5,7 @@ import pfgen
 
 
 def callback(
-    tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
+    tasks: list[dict[str, str]], params: dict[str, typing.Any]
 ) -> typing.Iterator[typing.Optional[str]]:
     mode = params["mode"]
     assert mode == "qa" or mode == "completion"

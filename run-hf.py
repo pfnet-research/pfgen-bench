@@ -15,7 +15,7 @@ class Callback:
         self.model: typing.Optional[transformers.PreTrainedModel] = None
 
     def __call__(
-        self, tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
+        self, tasks: list[dict[str, str]], params: dict[str, typing.Any]
     ) -> typing.Iterator[typing.Optional[str]]:
         model_id = params.get("_path", None) or params["model"]
         mode = params["mode"]
@@ -45,7 +45,7 @@ class Callback:
         if not hasattr(model.config, "pad_token_id"):
             model.config.pad_token_id = tokenizer.eos_token_id
 
-        task_groups: typing.List[typing.List[typing.Dict[str, str]]] = [[]]
+        task_groups: list[list[dict[str, str]]] = [[]]
         for task in tasks:
             if len(task_groups[-1]) >= params["_batch_size"]:
                 task_groups.append([])
