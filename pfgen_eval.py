@@ -1,5 +1,6 @@
 import glob
 import hashlib
+import io
 import json
 import lzma
 import math
@@ -24,25 +25,28 @@ def generate_ngrams(text: str, n_gram: int) -> typing.Iterator[list[str]]:
 
 
 class NgramScorer(object):
-    def __init__(self, answers, *, fluency_n_gram=10, truthfulness_n_gram=3):
+
+    def __init__(
+        self, answers: list[str], *, fluency_n_gram: int = 10, truthfulness_n_gram: int = 3
+    ) -> None:
         self.answers = answers
         self.fluency_n_gram = fluency_n_gram
         self.truthfulness_n_gram = truthfulness_n_gram
-        self.dist = {}
-        self.baseline = 1.0
+        self.dist: dict[str, int] = {}
+        self.baseline: float = 1.0
         self.build()
 
-    def build(self):
+    def build(self) -> None:
         for answer in self.answers:
             for tt in generate_ngrams(f"""^{answer}$""", self.fluency_n_gram):
                 for t in tt:
                     self.dist[t] = self.dist.get(t, 0) + 1
-        baseline = 0
+        baseline = 0.0
         for answer in self.answers:
             baseline += self.score_fluency(answer)[0]
         self.baseline = baseline / len(self.answers)
 
-    def score_fluency(self, answer):
+    def score_fluency(self, answer: str) -> tuple[float, float]:
         score = 0
         best = (0.0, 1.0)
         for n, tt in enumerate(generate_ngrams(f"""^{answer}$"""[:202], self.fluency_n_gram)):
@@ -56,7 +60,7 @@ class NgramScorer(object):
                 best = (s, discount)
         return best
 
-    def score_truthfulness(self, answer):
+    def score_truthfulness(self, answer: str) -> float:
         text = f"""^{answer}$"""[:202]
         a = [0 for _ in range(len(text))]
         for i in range(0, len(text) - self.truthfulness_n_gram + 1):
@@ -64,14 +68,14 @@ class NgramScorer(object):
             if t in self.dist:
                 for j in range(i, i + self.truthfulness_n_gram):
                     a[j] = max(a[j], self.dist[t])
-        total = 0
+        total = 0.0
         count = 0
         score = 0.0
         best = 0.0
         for n, (c, s) in enumerate(zip(text, a)):
             if c in "^$、。・「」『』（）【】［］〈〉《》":
                 continue
-            total += min(1.0, s / len(self.answers) * 200)
+            total += min(1.0, s / len(self.answers) * 200.0)
             count += 1
             score = total / count * (1 - max(n - 100, 0) / 50)
             if n >= 100:
@@ -80,7 +84,8 @@ class NgramScorer(object):
 
 
 class KeywordScorer(object):
-    def __init__(self, keywords):
+
+    def __init__(self, keywords: list[dict[str, typing.Any]]) -> None:
         self.keywords = keywords
 
     def match(self, answer: str, keyword: dict[str, typing.Any]) -> tuple[int, str]:
@@ -97,7 +102,7 @@ class KeywordScorer(object):
             return xs[0][0], keyword.get("name", xs[0][1])
         raise ValueError(f"Invalid keyword: {keyword}")
 
-    def score(self, answer: str):
+    def score(self, answer: str) -> tuple[float, list[tuple[str, float]]]:
         results = []
         scores = [1 - max(i - 100, 0) / 50 for i in range(len(answer) + 1)]
         scores = [s for s in scores if s >= 0]
@@ -113,9 +118,12 @@ class KeywordScorer(object):
 
 
 class Scorer(object):
-    def __init__(self, data, *, fluency_n_gram=10, truthfulness_n_gram=3):
+
+    def __init__(
+        self, data: dict[str, typing.Any], *, fluency_n_gram: int = 10, truthfulness_n_gram: int = 3
+    ) -> None:
         self.data = data
-        self.ngram_scorers = {}
+        self.ngram_scorers: dict[str, NgramScorer] = {}
         for k, v in data["answers"].items():
             self.ngram_scorers[k] = NgramScorer(
                 v,
@@ -124,8 +132,8 @@ class Scorer(object):
             )
         self.keyword_scorer = KeywordScorer(data["keywords"])
 
-    def score(self, answer):
-        scores = {"fluency": {}, "fluency_discount": 1.0, "truthfulness": {}}
+    def score(self, answer: str) -> dict[str, typing.Any]:
+        scores: dict[str, typing.Any] = {"fluency": {}, "fluency_discount": 1.0, "truthfulness": {}}
         for k, v in self.ngram_scorers.items():
             fluency, discount = v.score_fluency(answer)
             scores["fluency"][k] = round(fluency / len(self.ngram_scorers), 6)
@@ -148,7 +156,7 @@ class Scorer(object):
         return scores
 
 
-def mean_std(scores: list[float], ndigits=4) -> tuple[float, float]:
+def mean_std(scores: list[float], ndigits: int = 4) -> tuple[float, float]:
     mean = sum(scores) / len(scores)
     std = math.sqrt(sum((x - mean) ** 2 for x in scores) / len(scores))
     return round(mean, ndigits), round(std, ndigits)
@@ -160,7 +168,9 @@ class Executor(object):
         self.metadata_paths = list(sorted(glob.glob("data/Q*.json")))
         self.input_paths = sum([glob.glob(x, recursive=True) for x in input_paths], [])
 
-    def run_scorer(self, metadata, answers: dict[str, dict[str, typing.Any]]) -> None:
+    def run_scorer(
+        self, metadata: dict[str, typing.Any], answers: dict[str, dict[str, typing.Any]]
+    ) -> None:
         print(f"""Building scorer for {metadata["question_id"]}...""", file=sys.stderr)
         scorer = Scorer(metadata)
         print(f"""Scoring {metadata["question_id"]}...""", file=sys.stderr)
@@ -179,7 +189,7 @@ class Executor(object):
     ) -> None:
         print(f"""Writing result to {output_path}...""", file=sys.stderr)
         directory = os.path.dirname(output_path)
-        result = {
+        result: dict[str, typing.Any] = {
             "input_hash": info["input_hash"],
             "metadata_hash": info["metadata_hash"],
         }
@@ -198,28 +208,28 @@ class Executor(object):
 
         result["num_trials"] = min([len(x) for x in data.values()])
         scores = [[a["scores"]["average"] for a in x] for x in data.values()]
-        scores = [sum(x) / len(x) for x in zip(*scores)]
-        result["score"], result["score_std"] = mean_std(scores)
-        lengths = sum([[len(a["answer"]) for a in x] for x in data.values()], [])
+        trial_scores = [sum(x) / len(x) for x in zip(*scores)]
+        result["score"], result["score_std"] = mean_std(trial_scores)
+        lengths = sum([[len(a["answer"]) * 1.0 for a in x] for x in data.values()], [])
         result["length"], result["length_std"] = mean_std(lengths, 1)
 
         result_questions = {}
-        scores_all = {"fluency": {}, "truthfulness": {}}
+        scores_all: dict[str, typing.Any] = {"fluency": {}, "truthfulness": {}}
         for question_id, answers in data.items():
             answers.sort(key=lambda x: x["scores"]["average"], reverse=True)
 
-            scores = {"fluency": {}, "truthfulness": {}}
+            partial_scores: dict[str, typing.Any] = {"fluency": {}, "truthfulness": {}}
             for m in ["fluency", "truthfulness"]:
                 for k in answers[0]["scores"][m]:
-                    scores[m][k] = round(
+                    partial_scores[m][k] = round(
                         sum([a["scores"][m][k] for a in answers]) / len(answers), 5
                     )
                     scores_all[m][k] = round(
-                        scores_all[m].get(k, 0.0) + scores[m][k] / len(data), 5
+                        scores_all[m].get(k, 0.0) + partial_scores[m][k] / len(data), 5
                     )
             for m in ["helpfulness", "average"]:
-                scores[m] = round(sum([a["scores"][m] for a in answers]) / len(answers), 5)
-                scores_all[m] = round(scores_all.get(m, 0.0) + scores[m] / len(data), 5)
+                partial_scores[m] = round(sum([a["scores"][m] for a in answers]) / len(answers), 5)
+                scores_all[m] = round(scores_all.get(m, 0.0) + partial_scores[m] / len(data), 5)
 
             samples = []
             index_seen = set()
@@ -246,7 +256,8 @@ class Executor(object):
             json.dump(result, f, indent=2, ensure_ascii=False)
         os.rename(result_path + ".tmp", result_path)
 
-    def run(self, force=False):
+    def run(self, force: bool = False) -> None:
+        f: io.IOBase
         print("Loading metadata...", file=sys.stderr)
         metadata = {}
         metadata_hash = {}
@@ -261,8 +272,8 @@ class Executor(object):
         ).hexdigest()
 
         print("Loading answers...", file=sys.stderr)
-        answers = {}
-        result_info = {}
+        answers: dict[str, dict[str, dict[str, typing.Any]]] = {}
+        result_info: dict[str, dict[str, typing.Any]] = {}
         for input_path in self.input_paths:
             # Calculate SHA-1 hash.
             with open(input_path, "rb") as f:
@@ -285,9 +296,9 @@ class Executor(object):
             }
 
             with (
-                lzma.open(input_path, "rt")
+                typing.cast(io.IOBase, lzma.open(input_path, "rt"))
                 if input_path.endswith(".xz")
-                else open(input_path, "rt")
+                else typing.cast(io.IOBase, open(input_path, "rt"))
             ) as f:
                 for line in f:
                     d = json.loads(line)
@@ -335,16 +346,16 @@ class Executor(object):
                 if m["question"] not in answers:
                     continue
                 fs.append(executor.submit(self.run_scorer, m, answers[m["question"]]))
-            for f in futures.as_completed(fs):
-                f.result()
+            for future in futures.as_completed(fs):
+                future.result()
 
         print("Writing results...", file=sys.stderr)
         with futures.ProcessPoolExecutor(max_workers=50) as executor:
             fs = []
             for result_path, info in result_info.items():
                 fs.append(executor.submit(self.run_result, result_path, info))
-            for f in futures.as_completed(fs):
-                f.result()
+            for future in futures.as_completed(fs):
+                future.result()
 
 
 if __name__ == "__main__":

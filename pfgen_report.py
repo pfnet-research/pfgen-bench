@@ -5,11 +5,13 @@ import json
 import os
 import re
 import sys
+import typing
 from concurrent import futures
 
 
 class PgenReporter(object):
-    def __init__(self):
+
+    def __init__(self) -> None:
         super().__init__()
         print("Loading metadata...", file=sys.stderr)
         metadata = {}
@@ -27,7 +29,7 @@ class PgenReporter(object):
             )
         )
 
-    def stringfy_items(self, d: dict[str, float], *, long: bool = False):
+    def stringfy_items(self, d: dict[str, float], *, long: bool = False) -> str:
         config = {
             "P": (0, "PFN"),
             "T": (1, "Titech"),
@@ -40,7 +42,7 @@ class PgenReporter(object):
             d = {config[k][1]: v for k, v in d.items()}
         return "+".join([f"{k}:{v:.4f}" for k, v in d.items()])
 
-    def stringfy_scores(self, scores, *, long: bool = False, extra: str = ""):
+    def stringfy_scores(self, scores: typing.Any, *, long: bool = False, extra: str = "") -> str:
         if long:
             result = f"""- Score: {scores["average"]:.3f}{extra}\n"""
             for m, name in [("fluency", "Fluency"), ("truthfulness", "Truthfulness")]:
@@ -65,7 +67,7 @@ class PgenReporter(object):
             result += f""")){extra}"""
         return result
 
-    def process_result(self, result_path, output_path, *, force=False):
+    def process_result(self, result_path: str, output_path: str, *, force: bool = False) -> None:
         if not force:
             print(f"Checking a result from {result_path}...", file=sys.stderr)
             # Calculate SHA-1 hash.
@@ -95,7 +97,7 @@ class PgenReporter(object):
                 )
             )
 
-            f.write(f"""## Questions\n\n""")
+            f.write("""## Questions\n\n""")
 
             f.write("| Question | Score | Length |\n")
             f.write("|----------|-------|--------|\n")
@@ -122,7 +124,7 @@ class PgenReporter(object):
                     self.stringfy_scores(r["scores"], long=True, extra=f""" (±{r["score_std"]})""")
                 )
                 f.write(f"""- Length: {r["length"]} (±{r["length_std"]})\n\n""")
-                f.write(f"""<dl>\n""")
+                f.write("""<dl>\n""")
                 for a in r["samples"]:
                     f.write(f"""<dt>{self.stringfy_scores(a["scores"], long=False)}</dt>\n""")
                     answer = f"""^{a["answer"]}$"""
@@ -154,11 +156,11 @@ class PgenReporter(object):
                             s += c
                     s = s.replace("</b><b>", "").replace("</s><s>", "")
                     f.write(f"""<dd>{s}</dd>\n""")
-                f.write(f"""</dl>\n\n""")
+                f.write("""</dl>\n\n""")
         os.rename(output_path + ".tmp", output_path)
         print(f"Finished writing a report to {output_path}.", file=sys.stderr)
 
-    def leaderboard(self):
+    def leaderboard(self) -> None:
         print("Loading results...", file=sys.stderr)
         results = {}
         for result_path in self.result_paths:
@@ -187,6 +189,7 @@ class PgenReporter(object):
                 icon = "🟢"
             if len(model) > 40:
                 model = model[:37] + "..."
+            # ruff: noqa: E501
             table.append(
                 {
                     "Rank": f"{rank}" if mode != "system" else "N/A",
@@ -234,7 +237,7 @@ class PgenReporter(object):
         os.rename("README.md.tmp", "README.md")
         print("Finished writing a leaderboard.", file=sys.stderr)
 
-    def run(self, *, force=False):
+    def run(self, *, force: bool = False) -> None:
         with futures.ProcessPoolExecutor(max_workers=32) as executor:
             fs = []
             for result_path in self.result_paths:

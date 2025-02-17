@@ -58,16 +58,16 @@ QUESTION_DATA: str = r"""
 {"question": "七草がゆについて教えて。", "answer": "七草がゆは、1月7日の「人日の節句」に食べる日本の伝統的な行事食です。春の七草（セリ、ナズナ、ゴギョウ、ハコベラ、ホトケノザ、スズナ、スズシロ）を入れたおかゆを食べることで、1年の無病息災を願います。"}
 {"question": "神社と寺の違いについて教えて。", "answer": "神社は日本古来の宗教である神道の信仰施設で、神々を祀る場所です。一方、寺は仏教の信仰施設で、仏像や経典が祀られています。神社は鳥居があり、神職が神事を行い、寺は仏像があり、僧侶が仏教の教えを説きます。"}
 {"question": "神在月とは何ですか？", "answer": "神在月とは、旧暦10月のことを指し、全国の八百万の神々が出雲大社に集まり、縁結びの神議り（かむはかり）が行われるとされる月です。出雲地方では「神在月」と呼びますが、他の地域では「神無月」と呼ばれます。"}
-"""
+"""  # noqa: E501
+QUESTIONS: typing.List[typing.Dict[str, str]] = []
 
 
 def get_questions() -> typing.List[typing.Dict[str, str]]:
-    if not hasattr(get_questions, "QUESTIONS"):
-        questions: typing.List[typing.Dict[str, str]] = []
+    global QUESTIONS
+    if len(QUESTIONS) == 0:
         for line in QUESTION_DATA.strip().split("\n"):
-            questions.append(json.loads(line))
-        get_questions.QUESTIONS = questions
-    return get_questions.QUESTIONS
+            QUESTIONS.append(json.loads(line))
+    return QUESTIONS
 
 
 def generate_examples(question: typing.Dict[str, str], num_examples: int = 20) -> str:
@@ -117,7 +117,7 @@ def run_tasks(
     model: str,
     num_examples: int = 20,
     num_trials: int = 100,
-    **parameters: typing.Dict[str, typing.Any],
+    **parameters: typing.Any,
 ) -> None:
     questions = get_questions()
     parameters["engine"] = engine
@@ -144,17 +144,17 @@ def run_tasks(
             continue
         print(f"Starting a trial: {trial}", file=sys.stderr)
         if buf == "":
-            outputs = {}
+            outputs: typing.Dict[str, str] = {}
             for _ in range(10):
-                tasks = []
-                task_questions = []
-                for q in questions:
-                    if q["question"] in outputs:
+                tasks: typing.List[typing.Dict[str, str]] = []
+                task_questions: typing.List[str] = []
+                for q_info in questions:
+                    if q_info["question"] in outputs:
                         continue
-                    task_questions.append(q["question"])
+                    task_questions.append(q_info["question"])
                     tasks.append(
                         generate_task(
-                            q,
+                            q_info,
                             mode,
                             num_examples=num_examples,
                             prefix=parameters.get("prefix", "")
@@ -181,10 +181,10 @@ def run_tasks(
                     output = json.dumps(result, ensure_ascii=False)
                     print(f"Result: {output}", file=sys.stderr)
                     outputs[q] = output
-            for q in questions:
-                if q["question"] not in outputs:
-                    raise RuntimeError(f"""Missing result for: {q["question"]}""")
-                buf += outputs[q["question"]] + "\n"
+            for q_info in questions:
+                if q_info["question"] not in outputs:
+                    raise RuntimeError(f"""Missing result for: {q_info["question"]}""")
+                buf += outputs[q_info["question"]] + "\n"
         if os.path.exists(trial_path):
             print(f"File already exists: {trial_path}", file=sys.stderr)
             continue

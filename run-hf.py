@@ -4,101 +4,110 @@ import os
 import typing
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+import transformers
 
 import pfgen
 
 
-def callback(
-    tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
-) -> typing.Iterator[typing.Optional[str]]:
-    model = params.get("_path", None) or params["model"]
-    mode = params["mode"]
-    if not hasattr(callback, "model"):
-        callback.tokenizer = AutoTokenizer.from_pretrained(
-            model, padding_side="left", trust_remote_code=True
-        )
-        callback.tokenizer.add_eos_token = False
-        model_kwargs = {}
-        device = params.get("_device", "cpu")
-        if device == "auto":
-            model_kwargs["device_map"] = "auto"
-        callback.model = AutoModelForCausalLM.from_pretrained(
-            model,
-            trust_remote_code=True,
-            **model_kwargs,
-        )
-        callback.model.eval()
-        if device != "auto":
-            callback.model.to(device)
-    tokenizer = callback.tokenizer
-    if not hasattr(tokenizer, "pad_token"):
-        tokenizer.pad_token = tokenizer.eos_token
-    if params.get("chat_template", None):
-        tokenizer.chat_template = params["chat_template"]
-    model = callback.model
-    if not hasattr(model.config, "pad_token_id"):
-        model.config.pad_token_id = tokenizer.eos_token_id
+class Callback:
+    def __init__(self) -> None:
+        self._tokenizer: typing.Optional[transformers.PreTrainedTokenizer] = None
+        self._model: typing.Optional[transformers.PreTrainedModel] = None
 
-    task_groups = [[]]
-    for task in tasks:
-        if len(task_groups[-1]) >= params["_batch_size"]:
-            task_groups.append([])
-        task_groups[-1].append(task)
+    def __call__(
+        self, tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
+    ) -> typing.Iterator[typing.Optional[str]]:
+        model_id = params.get("_path", None) or params["model"]
+        mode = params["mode"]
+        if not hasattr(self, "_model"):
+            self._tokenizer = transformers.AutoTokenizer.from_pretrained(
+                model_id, padding_side="left", trust_remote_code=True
+            )
+            self._tokenizer.add_eos_token = False
+            model_kwargs = {}
+            device = params.get("_device", "cpu")
+            if device == "auto":
+                model_kwargs["device_map"] = "auto"
+            self._model = transformers.AutoModelForCausalLM.from_pretrained(
+                model_id, trust_remote_code=True, **model_kwargs
+            )
+            self._model.eval()
+            if device != "auto":
+                self._model.to(device)
+        assert self._tokenizer is not None
+        tokenizer: transformers.PreTrainedTokenizer = self._tokenizer
+        if not hasattr(tokenizer, "pad_token"):
+            tokenizer.pad_token = tokenizer.eos_token
+        if params.get("chat_template", None):
+            tokenizer.chat_template = params["chat_template"]
+        assert self._model is not None
+        model: transformers.PreTrainedModel = self._model
+        if not hasattr(model.config, "pad_token_id"):
+            model.config.pad_token_id = tokenizer.eos_token_id
 
-    for task_group in task_groups:
-        if mode == "completion":
-            inputs = tokenizer([t["prompt"] for t in task_group], return_tensors="pt", padding=True)
-        elif mode == "chat" or mode == "qa":
-            chats = []
-            for task in task_group:
-                if "system_prompt" in task:
-                    chat = [
-                        {"role": "system", "content": task["system_prompt"]},
-                        {"role": "user", "content": task["user_prompt"]},
-                    ]
-                else:
-                    chat = [{"role": "user", "content": task["prompt"]}]
-                chats.append(chat)
-            inputs = tokenizer.apply_chat_template(
-                conversation=chats,
-                add_generation_prompt=True,
-                return_tensors="pt",
-                return_dict=True,
-                padding=True,
-            )
-        else:
-            raise ValueError(f"Unsupported mode: {mode}")
-        try:
-            # NOTE: Workaround for models such as Tanuki-8x8B-dpo-v1.0.
-            if "token_type_ids" in inputs:
-                del inputs["token_type_ids"]
-            stop_strings = params.get("stop", []).copy()
-            if tokenizer.eos_token is not None:
-                stop_strings.append(tokenizer.eos_token)
-            if tokenizer.bos_token is not None:
-                stop_strings.append(tokenizer.bos_token)
-            outputs = model.generate(
-                **{k: v.to(model.device) for k, v in inputs.items()},
-                max_new_tokens=params.get("max_tokens", 300),
-                do_sample=True,
-                temperature=params["temperature"],
-                top_p=params["top_p"],
-                pad_token_id=tokenizer.eos_token_id,
-                tokenizer=tokenizer,
-                stop_strings=stop_strings,
-            )
-        except Exception as e:
-            print(e)
-            for _ in task_group:
-                yield None
-            continue
-        for output in outputs:
-            result = tokenizer.decode(output[inputs.input_ids.shape[1] :], skip_special_tokens=True)
-            for stop in params.get("stop", []):
-                if result.endswith(stop):
-                    result = result[: -len(stop)]
-            yield result
+        task_groups: typing.List[typing.List[typing.Dict[str, str]]] = [[]]
+        for task in tasks:
+            if len(task_groups[-1]) >= params["_batch_size"]:
+                task_groups.append([])
+            task_groups[-1].append(task)
+
+        for task_group in task_groups:
+            if mode == "completion":
+                inputs = tokenizer(
+                    [t["prompt"] for t in task_group], return_tensors="pt", padding=True
+                )
+            elif mode == "chat" or mode == "qa":
+                chats = []
+                for task in task_group:
+                    if "system_prompt" in task:
+                        chat = [
+                            {"role": "system", "content": task["system_prompt"]},
+                            {"role": "user", "content": task["user_prompt"]},
+                        ]
+                    else:
+                        chat = [{"role": "user", "content": task["prompt"]}]
+                    chats.append(chat)
+                inputs = tokenizer.apply_chat_template(
+                    conversation=chats,
+                    add_generation_prompt=True,
+                    return_tensors="pt",
+                    return_dict=True,
+                    padding=True,
+                )
+            else:
+                raise ValueError(f"Unsupported mode: {mode}")
+            try:
+                # NOTE: Workaround for models such as Tanuki-8x8B-dpo-v1.0.
+                if "token_type_ids" in inputs:
+                    del inputs["token_type_ids"]
+                stop_strings = params.get("stop", []).copy()
+                if tokenizer.eos_token is not None:
+                    stop_strings.append(tokenizer.eos_token)
+                if tokenizer.bos_token is not None:
+                    stop_strings.append(tokenizer.bos_token)
+                outputs = model.generate(
+                    **{k: v.to(model.device) for k, v in inputs.items()},
+                    max_new_tokens=params.get("max_tokens", 300),
+                    do_sample=True,
+                    temperature=params["temperature"],
+                    top_p=params["top_p"],
+                    pad_token_id=tokenizer.eos_token_id,
+                    tokenizer=tokenizer,
+                    stop_strings=stop_strings,
+                )
+            except Exception as e:
+                print(e)
+                for _ in task_group:
+                    yield None
+                continue
+            for output in outputs:
+                result = tokenizer.decode(
+                    output[inputs.input_ids.shape[1] :], skip_special_tokens=True
+                )
+                for stop in params.get("stop", []):
+                    if result.endswith(stop):
+                        result = result[: -len(stop)]
+                yield result
 
 
 if __name__ == "__main__":
@@ -137,7 +146,7 @@ if __name__ == "__main__":
                     kwargs["chat_template"] = t["chat_template"]
     pfgen.run_tasks(
         args.mode,
-        callback,
+        Callback(),
         engine="hf",
         model=args.model,
         num_trials=args.num_trials,

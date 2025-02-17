@@ -5,98 +5,109 @@ import os
 import typing
 
 import torch
+import transformers
 from transformers import AutoConfig
 from vllm import LLM, SamplingParams
 
 import pfgen
 
 
-def callback(
-    tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
-) -> typing.Iterator[typing.Optional[str]]:
-    model = params.get("_path", None) or params["model"]
-    mode = params["mode"]
-    if not hasattr(callback, "llm"):
-        kwargs = {}
-        if "dtype" in params:
-            kwargs["dtype"] = params["dtype"]
-        config = AutoConfig.from_pretrained(model, trust_remote_code=True)
-        model_max_tokens = getattr(config, "max_position_embeddings", None)
-        model_seq_length = getattr(config, "seq_length", None)
-        if "_max_tokens" in params:
-            m = params["_max_tokens"]
-            kwargs["max_num_batched_tokens"] = m
-            kwargs["max_model_len"] = min(m, model_max_tokens or m, model_seq_length or m)
-        tensor_parallel_size = math.gcd(
-            torch.cuda.device_count(),
-            getattr(config, "num_attention_heads", 720720),
-            getattr(config, "num_key_value_heads", 720720),
-        )
-        callback.llm = LLM(
-            model=model,
-            tensor_parallel_size=tensor_parallel_size,
-            trust_remote_code=True,
-            gpu_memory_utilization=0.95,
-            **kwargs,
-        )
-        callback.tokenizer = getattr(callback.llm, "tokenizer", callback.llm).get_tokenizer()
-        if hasattr(callback.tokenizer, "add_eos_token"):
-            callback.tokenizer.add_eos_token = False
-    llm = callback.llm
-    tokenizer = callback.tokenizer
+class Callback:
+    def __init__(self) -> None:
+        self.llm: LLM | None = None
+        self.tokenizer: transformers.PreTrainedTokenizer | None = None
 
-    sampling_params = SamplingParams(
-        temperature=params["temperature"],
-        top_p=params["top_p"],
-        max_tokens=params.get("max_tokens", 300),
-        stop=params.get("stop", []),
-    )
-    if mode == "completion":
-        for t in tasks:
-            t["prompt_token_ids"] = tokenizer.encode(t["prompt"])
+    def __call__(
+        self, tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
+    ) -> typing.Iterator[typing.Optional[str]]:
+        model = params.get("_path", None) or params["model"]
+        mode = params["mode"]
+        if not hasattr(self, "llm"):
+            kwargs = {}
+            if "dtype" in params:
+                kwargs["dtype"] = params["dtype"]
+            config = AutoConfig.from_pretrained(model, trust_remote_code=True)
+            model_max_tokens = getattr(config, "max_position_embeddings", None)
+            model_seq_length = getattr(config, "seq_length", None)
+            if "_max_tokens" in params:
+                m = params["_max_tokens"]
+                kwargs["max_num_batched_tokens"] = m
+                kwargs["max_model_len"] = min(m, model_max_tokens or m, model_seq_length or m)
+            tensor_parallel_size = math.gcd(
+                torch.cuda.device_count(),
+                math.gcd(
+                    getattr(config, "num_attention_heads", 720720),
+                    getattr(config, "num_key_value_heads", 720720),
+                ),
+            )
+            self.llm = LLM(
+                model=model,
+                tensor_parallel_size=tensor_parallel_size,
+                trust_remote_code=True,
+                gpu_memory_utilization=0.95,
+                **kwargs,
+            )
+            # Workaround for multiple vLLM versions.
+            self.tokenizer = getattr(self.llm, "tokenizer", self.llm).get_tokenizer()  # type: ignore
+            if hasattr(self.tokenizer, "add_eos_token"):
+                self.tokenizer.add_eos_token = False
+        assert self.llm is not None
+        llm = self.llm
+        assert self.tokenizer is not None
+        tokenizer = self.tokenizer
 
-        # Workaround for tokenizers adding an EOS token (e.g.,
-        # sbintuitions/sarashina1-7b).
-        # NOTE: This is necessary only for completion because chat templates bypasses
-        # adding special tokens.
-        if not hasattr(tokenizer, "add_eos_token") and hasattr(tokenizer, "eos_token_id"):
+        sampling_params = SamplingParams(
+            temperature=params["temperature"],
+            top_p=params["top_p"],
+            max_tokens=params.get("max_tokens", 300),
+            stop=params.get("stop", []),
+        )
+        if mode == "completion":
             for t in tasks:
-                if (
-                    len(t["prompt_token_ids"]) > 1
-                    and t["prompt_token_ids"][-1] == tokenizer.eos_token_id
-                ):
-                    t["prompt_token_ids"] = t["prompt_token_ids"][:-1]
-    else:
-        if params.get("chat_template", None):
-            tokenizer.chat_template = params["chat_template"]
-        if mode == "chat":
-            for t in tasks:
-                t["prompt_token_ids"] = tokenizer.apply_chat_template(
-                    conversation=[
-                        {"role": "system", "content": t["system_prompt"]},
-                        {"role": "user", "content": t["user_prompt"]},
-                    ],
-                    add_generation_prompt=True,
-                )
-        elif mode == "qa":
-            for t in tasks:
-                t["prompt_token_ids"] = tokenizer.apply_chat_template(
-                    conversation=[{"role": "user", "content": t["prompt"]}],
-                    add_generation_prompt=True,
-                )
+                t["prompt_token_ids"] = tokenizer.encode(t["prompt"])
+
+            # Workaround for tokenizers adding an EOS token (e.g.,
+            # sbintuitions/sarashina1-7b).
+            # NOTE: This is necessary only for completion because chat templates bypasses
+            # adding special tokens.
+            if not hasattr(tokenizer, "add_eos_token") and hasattr(tokenizer, "eos_token_id"):
+                for t in tasks:
+                    if (
+                        len(t["prompt_token_ids"]) > 1
+                        and t["prompt_token_ids"][-1] == tokenizer.eos_token_id
+                    ):
+                        t["prompt_token_ids"] = t["prompt_token_ids"][:-1]
         else:
-            raise ValueError(f"Unsupported mode: {mode}")
+            if params.get("chat_template", None):
+                tokenizer.chat_template = params["chat_template"]
+            if mode == "chat":
+                for t in tasks:
+                    t["prompt_token_ids"] = tokenizer.apply_chat_template(
+                        conversation=[
+                            {"role": "system", "content": t["system_prompt"]},
+                            {"role": "user", "content": t["user_prompt"]},
+                        ],
+                        add_generation_prompt=True,
+                    )
+            elif mode == "qa":
+                for t in tasks:
+                    t["prompt_token_ids"] = tokenizer.apply_chat_template(
+                        conversation=[{"role": "user", "content": t["prompt"]}],
+                        add_generation_prompt=True,
+                    )
+            else:
+                raise ValueError(f"Unsupported mode: {mode}")
 
-    outputs = llm.generate(
-        prompt_token_ids=[task["prompt_token_ids"] for task in tasks],
-        sampling_params=sampling_params,
-    )
-    for output in outputs:
-        try:
-            yield output.outputs[0].text.strip()
-        except Exception as e:
-            print(f"Error: {e}")
-            yield None
+        outputs = llm.generate(
+            prompt_token_ids=[task["prompt_token_ids"] for task in tasks],
+            sampling_params=sampling_params,
+        )
+        for output in outputs:
+            try:
+                yield output.outputs[0].text.strip()
+            except Exception as e:
+                print(f"Error: {e}")
+                yield None
 
 
 if __name__ == "__main__":
@@ -143,7 +154,7 @@ if __name__ == "__main__":
                     kwargs["chat_template"] = t["chat_template"]
     pfgen.run_tasks(
         args.mode,
-        callback,
+        Callback(),
         engine="vllm",
         model=args.model,
         num_examples=args.num_examples,

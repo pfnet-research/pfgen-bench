@@ -1,0 +1,40 @@
+name: Lint & Type Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH  # uv を PATH に追加
+
+      - name: Install dependencies using uv
+        run: uv pip install ruff black isort mypy
+
+      - name: Run Ruff (Lint)
+        run: uv pip ruff check .
+
+      - name: Run Black (Format Check)
+        run: uv pip black --check .
+
+      - name: Run isort (Import Order Check)
+        run: uv pip isort --check-only .
+
+      - name: Run mypy (Type Check)
+        run: uv pip mypy .

@@ -10,10 +10,9 @@ import pfgen
 def callback(
     tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
 ) -> typing.Iterator[typing.Optional[str]]:
-    model = params["model"].split("/")[-1]
     mode = params["mode"]
     temperature = params["temperature"]
-    kwargs = {}
+    kwargs: typing.Dict[str, typing.Any] = {}
     kwargs["base_url"] = os.getenv("OPENAI_BASE_URL")
     client = openai.OpenAI(**kwargs)
     for task in tasks:
