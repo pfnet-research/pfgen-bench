@@ -1,12 +1,12 @@
+import glob
+import hashlib
 import json
 import lzma
-import os
 import math
-import glob
+import os
+import re
 import sys
 import typing
-import hashlib
-import re
 from concurrent import futures
 
 
@@ -45,9 +45,7 @@ class NgramScorer(object):
     def score_fluency(self, answer):
         score = 0
         best = (0.0, 1.0)
-        for n, tt in enumerate(
-            generate_ngrams(f"""^{answer}$"""[:202], self.fluency_n_gram)
-        ):
+        for n, tt in enumerate(generate_ngrams(f"""^{answer}$"""[:202], self.fluency_n_gram)):
             for t in tt:
                 score += self.dist.get(t, 0)
             if n == 0:
@@ -110,9 +108,7 @@ class KeywordScorer(object):
             results.append(r)
         n = max(reversed(range(len(scores))), key=lambda x: scores[x])
         return scores[n], [r[1:] for r in results if n < r[0]] + (
-            [(f"{n - 100}字超過", 1 - max(n - 100, 0) / 50)]
-            if n > 100 and scores[n] > 0
-            else []
+            [(f"{n - 100}字超過", 1 - max(n - 100, 0) / 50)] if n > 100 and scores[n] > 0 else []
         )
 
 
@@ -133,9 +129,7 @@ class Scorer(object):
         for k, v in self.ngram_scorers.items():
             fluency, discount = v.score_fluency(answer)
             scores["fluency"][k] = round(fluency / len(self.ngram_scorers), 6)
-            scores["fluency_discount"] = round(
-                max(scores["fluency_discount"], discount), 2
-            )
+            scores["fluency_discount"] = round(max(scores["fluency_discount"], discount), 2)
             scores["truthfulness"][k] = round(
                 v.score_truthfulness(answer) / len(self.ngram_scorers), 6
             )
@@ -224,9 +218,7 @@ class Executor(object):
                         scores_all[m].get(k, 0.0) + scores[m][k] / len(data), 5
                     )
             for m in ["helpfulness", "average"]:
-                scores[m] = round(
-                    sum([a["scores"][m] for a in answers]) / len(answers), 5
-                )
+                scores[m] = round(sum([a["scores"][m] for a in answers]) / len(answers), 5)
                 scores_all[m] = round(scores_all.get(m, 0.0) + scores[m] / len(data), 5)
 
             samples = []
@@ -241,12 +233,8 @@ class Executor(object):
                 samples.append(a)
 
             r = {"question": answers[0]["question"]}
-            r["score"], r["score_std"] = mean_std(
-                [a["scores"]["average"] for a in answers]
-            )
-            r["length"], r["length_std"] = mean_std(
-                [len(a["answer"]) for a in answers], 1
-            )
+            r["score"], r["score_std"] = mean_std([a["scores"]["average"] for a in answers])
+            r["length"], r["length_std"] = mean_std([len(a["answer"]) for a in answers], 1)
             r["scores"] = scores
             r["samples"] = samples
             result_questions[question_id] = r

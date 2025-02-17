@@ -1,5 +1,5 @@
-import os
 import argparse
+import os
 import typing
 
 import openai
@@ -15,9 +15,7 @@ def callback(
     temperature = params["temperature"]
     kwargs = {}
     kwargs["base_url"] = os.getenv("OPENAI_BASE_URL")
-    client = openai.OpenAI(
-        **kwargs
-    )
+    client = openai.OpenAI(**kwargs)
     for task in tasks:
         kwargs = {}
         if mode == "chat":
@@ -56,9 +54,7 @@ def callback(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--mode",
         type=str,
@@ -72,12 +68,8 @@ if __name__ == "__main__":
         default="openai/gpt-4o",
         help="OpenAI model name.",
     )
-    parser.add_argument(
-        "--temperature", type=float, default=1.0, help="Temperature for sampling."
-    )
-    parser.add_argument(
-        "--num-trials", type=int, default=10, help="Number of trials to run."
-    )
+    parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
+    parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
     args = parser.parse_args()
     pfgen.run_tasks(
         args.mode,

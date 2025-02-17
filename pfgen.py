@@ -1,12 +1,11 @@
-import os
-import json
-import typing
-import random
 import datetime
 import hashlib
+import json
+import os
+import random
 import sys
 import time
-
+import typing
 
 QUESTION_DATA: str = r"""
 {"question": "時計の長針と短針が1日に重なる回数は？", "answer": "時計の長針と短針が1日に重なる回数は、22回です。これは、長針が1日に24周するのに対して、短針は1日に2周するためです。長針が短針を追い越す瞬間に重なるので、重なる回数は24-2=22回となります。"}
@@ -84,9 +83,7 @@ def generate_task(
     question: typing.Dict[str, str], mode: str, num_examples: int = 20, prefix: str = ""
 ) -> typing.Dict[str, str]:
     if mode == "chat":
-        system_prompt = (
-            "例と同様の文体及び文字数で、ユーザの質問に1行で答えてください。\n\n"
-        )
+        system_prompt = "例と同様の文体及び文字数で、ユーザの質問に1行で答えてください。\n\n"
     elif mode == "qa":
         system_prompt = "例と同様の文体及び文字数で、質問に1行で答えてください。\n\n"
     else:
@@ -101,9 +98,7 @@ def generate_task(
         task["system_prompt"] = prefix + system_prompt.strip()
         task["user_prompt"] = user_prompt.strip()
     elif mode == "qa":
-        task["prompt"] = (
-            prefix + system_prompt.strip() + "\n\n## 質問\n" + user_prompt.strip()
-        )
+        task["prompt"] = prefix + system_prompt.strip() + "\n\n## 質問\n" + user_prompt.strip()
     elif mode == "completion":
         task["prompt"] = prefix + system_prompt.strip() + "\n\n" + user_prompt.strip()
     else:

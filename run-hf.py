@@ -1,10 +1,10 @@
-import os
 import argparse
-import typing
 import json
+import os
+import typing
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import pfgen
 
@@ -48,9 +48,7 @@ def callback(
 
     for task_group in task_groups:
         if mode == "completion":
-            inputs = tokenizer(
-                [t["prompt"] for t in task_group], return_tensors="pt", padding=True
-            )
+            inputs = tokenizer([t["prompt"] for t in task_group], return_tensors="pt", padding=True)
         elif mode == "chat" or mode == "qa":
             chats = []
             for task in task_group:
@@ -96,9 +94,7 @@ def callback(
                 yield None
             continue
         for output in outputs:
-            result = tokenizer.decode(
-                output[inputs.input_ids.shape[1] :], skip_special_tokens=True
-            )
+            result = tokenizer.decode(output[inputs.input_ids.shape[1] :], skip_special_tokens=True)
             for stop in params.get("stop", []):
                 if result.endswith(stop):
                     result = result[: -len(stop)]
@@ -106,9 +102,7 @@ def callback(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--mode",
         type=str,
@@ -128,19 +122,11 @@ if __name__ == "__main__":
         default="",
         help="Path to the model.",
     )
-    parser.add_argument(
-        "--num-trials", type=int, default=10, help="Number of trials to run."
-    )
-    parser.add_argument(
-        "--temperature", type=float, default=1.0, help="Temperature for sampling."
-    )
+    parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
+    parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
     parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
-    parser.add_argument(
-        "--batch-size", type=int, default=1, help="Batch size for sampling."
-    )
-    parser.add_argument(
-        "--device", type=str, default="auto", help="Device for sampling."
-    )
+    parser.add_argument("--batch-size", type=int, default=1, help="Batch size for sampling.")
+    parser.add_argument("--device", type=str, default="auto", help="Device for sampling.")
     args = parser.parse_args()
     kwargs = {}
     if args.mode != "completion" and os.path.exists("chat_templates.json"):

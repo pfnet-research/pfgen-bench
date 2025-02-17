@@ -1,12 +1,12 @@
-import os
 import argparse
-import typing
-import math
 import json
+import math
+import os
+import typing
 
 import torch
-from vllm import LLM, SamplingParams
 from transformers import AutoConfig
+from vllm import LLM, SamplingParams
 
 import pfgen
 
@@ -26,9 +26,7 @@ def callback(
         if "_max_tokens" in params:
             m = params["_max_tokens"]
             kwargs["max_num_batched_tokens"] = m
-            kwargs["max_model_len"] = min(
-                m, model_max_tokens or m, model_seq_length or m
-            )
+            kwargs["max_model_len"] = min(m, model_max_tokens or m, model_seq_length or m)
         tensor_parallel_size = math.gcd(
             torch.cuda.device_count(),
             getattr(config, "num_attention_heads", 720720),
@@ -41,9 +39,7 @@ def callback(
             gpu_memory_utilization=0.95,
             **kwargs,
         )
-        callback.tokenizer = getattr(
-            callback.llm, "tokenizer", callback.llm
-        ).get_tokenizer()
+        callback.tokenizer = getattr(callback.llm, "tokenizer", callback.llm).get_tokenizer()
         if hasattr(callback.tokenizer, "add_eos_token"):
             callback.tokenizer.add_eos_token = False
     llm = callback.llm
@@ -63,9 +59,7 @@ def callback(
         # sbintuitions/sarashina1-7b).
         # NOTE: This is necessary only for completion because chat templates bypasses
         # adding special tokens.
-        if not hasattr(tokenizer, "add_eos_token") and hasattr(
-            tokenizer, "eos_token_id"
-        ):
+        if not hasattr(tokenizer, "add_eos_token") and hasattr(tokenizer, "eos_token_id"):
             for t in tasks:
                 if (
                     len(t["prompt_token_ids"]) > 1
@@ -106,9 +100,7 @@ def callback(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--mode",
         type=str,
@@ -128,19 +120,11 @@ if __name__ == "__main__":
         default="",
         help="Path to the model.",
     )
-    parser.add_argument(
-        "--num-trials", type=int, default=10, help="Number of trials to run."
-    )
-    parser.add_argument(
-        "--temperature", type=float, default=1.0, help="Temperature for sampling."
-    )
+    parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
+    parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
     parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
-    parser.add_argument(
-        "--num-examples", type=int, default=20, help="Number of examples."
-    )
-    parser.add_argument(
-        "--max-tokens", type=int, default=0, help="Maximum number of tokens."
-    )
+    parser.add_argument("--num-examples", type=int, default=20, help="Number of examples.")
+    parser.add_argument("--max-tokens", type=int, default=0, help="Maximum number of tokens.")
     parser.add_argument("--prefix", type=str, default="", help="Prefix for the prompt.")
     parser.add_argument("--dtype", type=str, default="", help="Data type.")
     args = parser.parse_args()

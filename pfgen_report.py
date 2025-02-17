@@ -1,10 +1,10 @@
 import glob
+import hashlib
+import html
 import json
 import os
-import sys
-import html
 import re
-import hashlib
+import sys
 from concurrent import futures
 
 
@@ -75,9 +75,7 @@ class PgenReporter(object):
                 # If output file contains "<!-- result.json: SHA1 -->", skip it.
                 with open(output_path) as f:
                     if f"<!-- result.json: {result_hash} -->" in f.read():
-                        print(
-                            f"Skipping a result from {result_path}...", file=sys.stderr
-                        )
+                        print(f"Skipping a result from {result_path}...", file=sys.stderr)
                         return
 
         print(f"Loading a result from {result_path}...", file=sys.stderr)
@@ -118,29 +116,22 @@ class PgenReporter(object):
             for md in self.metadata.values():
                 question_id = md["question_id"]
                 question = md["question"]
-                f.write(
-                    f"""## <a name="{question_id}"></a>{question_id}. {question}\n\n"""
-                )
+                f.write(f"""## <a name="{question_id}"></a>{question_id}. {question}\n\n""")
                 r = result["questions"][question_id]
                 f.write(
-                    self.stringfy_scores(
-                        r["scores"], long=True, extra=f""" (±{r["score_std"]})"""
-                    )
+                    self.stringfy_scores(r["scores"], long=True, extra=f""" (±{r["score_std"]})""")
                 )
                 f.write(f"""- Length: {r["length"]} (±{r["length_std"]})\n\n""")
                 f.write(f"""<dl>\n""")
                 for a in r["samples"]:
-                    f.write(
-                        f"""<dt>{self.stringfy_scores(a["scores"], long=False)}</dt>\n"""
-                    )
+                    f.write(f"""<dt>{self.stringfy_scores(a["scores"], long=False)}</dt>\n""")
                     answer = f"""^{a["answer"]}$"""
                     dist = [0 for _ in range(len(answer))]
                     total = sum(len(xs) for xs in md["answers"].values())
                     for i in range(len(dist) - 3 + 1):
                         t = answer[i : i + 3]
                         dist[i] = sum(
-                            sum(1 if t in x else 0 for x in xs)
-                            for xs in md["answers"].values()
+                            sum(1 if t in x else 0 for x in xs) for xs in md["answers"].values()
                         )
                     ngram_dist = []
                     for i in range(len(dist)):
@@ -210,9 +201,7 @@ class PgenReporter(object):
             if mode != "system":
                 rank += 1
         for key in table[0]:
-            width = max(
-                sum(1 if ord(x) < 128 else 2 for x in row[key]) for row in table
-            )
+            width = max(sum(1 if ord(x) < 128 else 2 for x in row[key]) for row in table)
             label = key + "&nbsp;" * max(0, width - len(key))
             buffer += f"| <code>{label}</code> "
         buffer += "|\n"
@@ -251,9 +240,7 @@ class PgenReporter(object):
             for result_path in self.result_paths:
                 output_path = os.path.join(os.path.dirname(result_path), "README.md")
                 fs.append(
-                    executor.submit(
-                        self.process_result, result_path, output_path, force=force
-                    )
+                    executor.submit(self.process_result, result_path, output_path, force=force)
                 )
             fs.append(executor.submit(self.leaderboard))
             for f in futures.as_completed(fs):
