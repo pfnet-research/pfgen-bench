@@ -19,7 +19,7 @@ class Callback:
     ) -> typing.Iterator[typing.Optional[str]]:
         model_id = params.get("_path", None) or params["model"]
         mode = params["mode"]
-        if not hasattr(self, "model"):
+        if self.model is None:
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(
                 model_id, padding_side="left", trust_remote_code=True
             )

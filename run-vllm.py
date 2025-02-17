@@ -22,7 +22,7 @@ class Callback:
     ) -> typing.Iterator[typing.Optional[str]]:
         model = params.get("_path", None) or params["model"]
         mode = params["mode"]
-        if not hasattr(self, "llm"):
+        if self.llm is None:
             kwargs = {}
             if "dtype" in params:
                 kwargs["dtype"] = params["dtype"]

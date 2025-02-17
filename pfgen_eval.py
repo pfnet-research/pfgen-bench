@@ -207,8 +207,8 @@ class Executor(object):
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         result["num_trials"] = min([len(x) for x in data.values()])
-        scores = [[a["scores"]["average"] for a in x] for x in data.values()]
-        trial_scores = [sum(x) / len(x) for x in zip(*scores)]
+        task_scores = [[a["scores"]["average"] for a in x] for x in data.values()]
+        trial_scores = [sum(x) / len(x) for x in zip(*task_scores)]
         result["score"], result["score_std"] = mean_std(trial_scores)
         lengths = sum([[len(a["answer"]) * 1.0 for a in x] for x in data.values()], [])
         result["length"], result["length_std"] = mean_std(lengths, 1)
@@ -218,18 +218,18 @@ class Executor(object):
         for question_id, answers in data.items():
             answers.sort(key=lambda x: x["scores"]["average"], reverse=True)
 
-            partial_scores: dict[str, typing.Any] = {"fluency": {}, "truthfulness": {}}
+            scores: dict[str, typing.Any] = {"fluency": {}, "truthfulness": {}}
             for m in ["fluency", "truthfulness"]:
                 for k in answers[0]["scores"][m]:
-                    partial_scores[m][k] = round(
+                    scores[m][k] = round(
                         sum([a["scores"][m][k] for a in answers]) / len(answers), 5
                     )
                     scores_all[m][k] = round(
-                        scores_all[m].get(k, 0.0) + partial_scores[m][k] / len(data), 5
+                        scores_all[m].get(k, 0.0) + scores[m][k] / len(data), 5
                     )
             for m in ["helpfulness", "average"]:
-                partial_scores[m] = round(sum([a["scores"][m] for a in answers]) / len(answers), 5)
-                scores_all[m] = round(scores_all.get(m, 0.0) + partial_scores[m] / len(data), 5)
+                scores[m] = round(sum([a["scores"][m] for a in answers]) / len(answers), 5)
+                scores_all[m] = round(scores_all.get(m, 0.0) + scores[m] / len(data), 5)
 
             samples = []
             index_seen = set()
