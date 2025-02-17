@@ -1,4 +1,4 @@
-name: Lint & Type Check
+name: lint
 
 on:
   pull_request:
