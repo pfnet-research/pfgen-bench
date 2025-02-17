@@ -93,6 +93,7 @@ class Callback:
                     do_sample=do_sample,
                     temperature=params["temperature"] if do_sample else None,
                     top_p=params["top_p"] if do_sample else None,
+                    top_k=None,
                     pad_token_id=tokenizer.eos_token_id,
                     tokenizer=tokenizer,
                     stop_strings=stop_strings,
