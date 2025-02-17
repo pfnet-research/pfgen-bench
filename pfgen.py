@@ -70,17 +70,27 @@ def get_questions() -> typing.List[typing.Dict[str, str]]:
     return QUESTIONS
 
 
-def generate_examples(question: typing.Dict[str, str], num_examples: int = 20) -> str:
+def generate_examples(
+    question: typing.Dict[str, str], trial: int, num_examples: int = 20, seed: str = ""
+) -> str:
     questions = get_questions()
     examples = [q for q in questions if question["question"] != q["question"]]
+    examples.sort(
+        key=lambda x: hashlib.sha1(f"{seed}::{trial}::{x['question']}".encode()).hexdigest()
+    )
     prompt = ""
-    for example in random.sample(examples, num_examples):
+    for example in examples[:num_examples]:
         prompt += f"Q: {example['question']}\nA: {example['answer']}\n\n"
     return prompt
 
 
 def generate_task(
-    question: typing.Dict[str, str], mode: str, num_examples: int = 20, prefix: str = ""
+    question: typing.Dict[str, str],
+    mode: str,
+    trial: int,
+    num_examples: int = 20,
+    prefix: str = "",
+    seed: str = "",
 ) -> typing.Dict[str, str]:
     if mode == "chat":
         system_prompt = "例と同様の文体及び文字数で、ユーザの質問に1行で答えてください。\n\n"
@@ -89,7 +99,9 @@ def generate_task(
     else:
         system_prompt = ""
     system_prompt += "## 回答例\n"
-    system_prompt += generate_examples(question, num_examples=num_examples).strip()
+    system_prompt += generate_examples(
+        question, trial, num_examples=num_examples, seed=seed
+    ).strip()
     user_prompt = f"""Q: {question["question"]}\n"""
     if mode == "completion":
         user_prompt += "A:"
@@ -103,6 +115,9 @@ def generate_task(
         task["prompt"] = prefix + system_prompt.strip() + "\n\n" + user_prompt.strip()
     else:
         raise ValueError(f"Unknown mode: {mode}")
+    task["seed"] = int(
+        hashlib.sha1(f"{seed}::{trial}::{task['question']}".encode()).hexdigest(), 16
+    ) % (2**31)
     return task
 
 
@@ -117,6 +132,7 @@ def run_tasks(
     model: str,
     num_examples: int = 20,
     num_trials: int = 100,
+    seed: str = "",
     **parameters: typing.Any,
 ) -> None:
     questions = get_questions()
@@ -156,12 +172,14 @@ def run_tasks(
                         generate_task(
                             q_info,
                             mode,
+                            trial=trial,
                             num_examples=num_examples,
                             prefix=parameters.get("prefix", "")
                             .encode("utf-8")
                             .decode("unicode_escape")
                             .encode("latin1")
                             .decode("utf-8"),
+                            seed=seed,
                         )
                     )
                 if len(tasks) == 0:

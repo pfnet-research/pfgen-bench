@@ -85,12 +85,14 @@ class Callback:
                     stop_strings.append(tokenizer.eos_token)
                 if tokenizer.bos_token is not None:
                     stop_strings.append(tokenizer.bos_token)
+                torch.manual_seed(task.get("seed", 0))
+                do_sample = params["temperature"] > 1e-6
                 outputs = model.generate(
                     **{k: v.to(model.device) for k, v in inputs.items()},
                     max_new_tokens=params.get("max_tokens", 300),
-                    do_sample=True,
-                    temperature=params["temperature"],
-                    top_p=params["top_p"],
+                    do_sample=do_sample,
+                    temperature=params["temperature"] if do_sample else None,
+                    top_p=params["top_p"] if do_sample else None,
                     pad_token_id=tokenizer.eos_token_id,
                     tokenizer=tokenizer,
                     stop_strings=stop_strings,
