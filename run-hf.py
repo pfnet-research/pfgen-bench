@@ -11,37 +11,37 @@ import pfgen
 
 class Callback:
     def __init__(self) -> None:
-        self._tokenizer: typing.Optional[transformers.PreTrainedTokenizer] = None
-        self._model: typing.Optional[transformers.PreTrainedModel] = None
+        self.tokenizer: typing.Optional[transformers.PreTrainedTokenizer] = None
+        self.model: typing.Optional[transformers.PreTrainedModel] = None
 
     def __call__(
         self, tasks: typing.List[typing.Dict[str, str]], params: typing.Dict[str, typing.Any]
     ) -> typing.Iterator[typing.Optional[str]]:
         model_id = params.get("_path", None) or params["model"]
         mode = params["mode"]
-        if not hasattr(self, "_model"):
-            self._tokenizer = transformers.AutoTokenizer.from_pretrained(
+        if not hasattr(self, "model"):
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(
                 model_id, padding_side="left", trust_remote_code=True
             )
-            self._tokenizer.add_eos_token = False
+            self.tokenizer.add_eos_token = False
             model_kwargs = {}
             device = params.get("_device", "cpu")
             if device == "auto":
                 model_kwargs["device_map"] = "auto"
-            self._model = transformers.AutoModelForCausalLM.from_pretrained(
+            self.model = transformers.AutoModelForCausalLM.from_pretrained(
                 model_id, trust_remote_code=True, **model_kwargs
             )
-            self._model.eval()
+            self.model.eval()
             if device != "auto":
-                self._model.to(device)
-        assert self._tokenizer is not None
-        tokenizer: transformers.PreTrainedTokenizer = self._tokenizer
+                self.model.to(device)
+        assert self.tokenizer is not None
+        tokenizer: transformers.PreTrainedTokenizer = self.tokenizer
         if not hasattr(tokenizer, "pad_token"):
             tokenizer.pad_token = tokenizer.eos_token
         if params.get("chat_template", None):
             tokenizer.chat_template = params["chat_template"]
-        assert self._model is not None
-        model: transformers.PreTrainedModel = self._model
+        assert self.model is not None
+        model: transformers.PreTrainedModel = self.model
         if not hasattr(model.config, "pad_token_id"):
             model.config.pad_token_id = tokenizer.eos_token_id
 

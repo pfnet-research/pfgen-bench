@@ -17,24 +17,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Install uv
+      - name: Install dependencies
         run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH  # uv を PATH に追加
-
-      - name: Install dependencies using uv
-        run: uv pip install ruff black isort mypy
+          python -m pip install --upgrade pip
+          pip install ruff black isort mypy
 
       - name: Run Ruff (Lint)
-        run: uv pip ruff check .
+        run: ruff check .
 
       - name: Run Black (Format Check)
-        run: uv pip black --check .
+        run: black --check .
 
       - name: Run isort (Import Order Check)
-        run: uv pip isort --check-only .
+        run: isort --check-only .
 
       - name: Run mypy (Type Check)
-        run: uv pip mypy .
+        run: mypy .
