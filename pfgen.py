@@ -2,7 +2,6 @@ import datetime
 import hashlib
 import json
 import os
-import random
 import sys
 import time
 import typing
@@ -105,7 +104,7 @@ def generate_task(
     user_prompt = f"""Q: {question["question"]}\n"""
     if mode == "completion":
         user_prompt += "A:"
-    task = {"question": question["question"]}
+    task: dict[str, typing.Any] = {"question": question["question"]}
     if mode == "chat":
         task["system_prompt"] = prefix + system_prompt.strip()
         task["user_prompt"] = user_prompt.strip()
