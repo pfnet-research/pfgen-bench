@@ -1,3 +1,12 @@
+[project]
+name = "pfgen-bench"
+version = "0.1.0"
+description = "Preferred Generation Benchmark"
+authors = [
+    {name = "imos", email = "173752+imos@users.noreply.github.com"}
+]
+dependencies = []
+
 [tool.black]
 line-length = 100
 target-version = ['py310', 'py311', 'py312']
