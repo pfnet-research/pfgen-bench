@@ -90,7 +90,7 @@ class Callback:
                 outputs = model.generate(
                     **{k: v.to(model.device) for k, v in inputs.items()},
                     max_new_tokens=params.get("max_tokens", 300),
-                    do_sample=do_sample,
+                    do_sample=params["temperature"] != 0.0,
                     temperature=params["temperature"] if do_sample else None,
                     top_p=params["top_p"] if do_sample else None,
                     top_k=None,
