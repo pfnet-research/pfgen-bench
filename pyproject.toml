@@ -5,6 +5,7 @@ description = "Preferred Generation Benchmark"
 authors = [
     {name = "imos", email = "173752+imos@users.noreply.github.com"}
 ]
+requires-python = ">=3.10"
 dependencies = []
 
 [tool.black]

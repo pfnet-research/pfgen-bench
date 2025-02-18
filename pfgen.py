@@ -124,7 +124,7 @@ def run_tasks(
     mode: str,
     callback: typing.Callable[
         [list[dict[str, str]], dict[str, typing.Any]],
-        typing.Iterable[typing.Optional[str]],
+        typing.Iterable[str | None],
     ],
     *,
     engine: str,

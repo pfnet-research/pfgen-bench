@@ -11,7 +11,7 @@ import pfgen
 
 def callback(
     tasks: list[dict[str, str]], params: dict[str, typing.Any]
-) -> typing.Iterator[typing.Optional[str]]:
+) -> typing.Iterator[str | None]:
     model = params["model"].split("/")[-1]
     assert params["mode"] == "qa"
     project = os.environ.get("VERTEXAI_PROJECT", "")

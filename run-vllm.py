@@ -19,7 +19,7 @@ class Callback:
 
     def __call__(
         self, tasks: list[dict[str, str]], params: dict[str, typing.Any]
-    ) -> typing.Iterator[typing.Optional[str]]:
+    ) -> typing.Iterator[str | None]:
         model = params.get("_path", None) or params["model"]
         mode = params["mode"]
         if self.llm is None:

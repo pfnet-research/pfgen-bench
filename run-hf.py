@@ -11,12 +11,12 @@ import pfgen
 
 class Callback:
     def __init__(self) -> None:
-        self.tokenizer: typing.Optional[transformers.PreTrainedTokenizer] = None
-        self.model: typing.Optional[transformers.PreTrainedModel] = None
+        self.tokenizer: transformers.PreTrainedTokenizer | None = None
+        self.model: transformers.PreTrainedModel | None = None
 
     def __call__(
         self, tasks: list[dict[str, str]], params: dict[str, typing.Any]
-    ) -> typing.Iterator[typing.Optional[str]]:
+    ) -> typing.Iterator[str | None]:
         model_id = params.get("_path", None) or params["model"]
         mode = params["mode"]
         if self.model is None:

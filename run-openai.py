@@ -9,7 +9,7 @@ import pfgen
 
 def callback(
     tasks: list[dict[str, str]], params: dict[str, typing.Any]
-) -> typing.Iterator[typing.Optional[str]]:
+) -> typing.Iterator[str | None]:
     mode = params["mode"]
     temperature = params["temperature"]
     kwargs: dict[str, typing.Any] = {}
