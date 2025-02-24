@@ -1,6 +1,7 @@
 import argparse
 import os
 import typing
+from functools import partial
 
 import openai
 
@@ -8,7 +9,7 @@ import pfgen
 
 
 def callback(
-    tasks: list[dict[str, str]], params: dict[str, typing.Any]
+    tasks: list[dict[str, str]], params: dict[str, typing.Any], extra_eos_tokens: list[str] | None
 ) -> typing.Iterator[str | None]:
     mode = params["mode"]
     temperature = params["temperature"]
@@ -29,6 +30,9 @@ def callback(
         else:
             raise ValueError(f"Unsupported mode: {mode}")
         try:
+            stop = params.get("stop", [])
+            if extra_eos_tokens is not None:
+                stop.extend(extra_eos_tokens)
             if mode in ["qa", "chat"]:
                 results = client.chat.completions.create(
                     model=params["model"],
@@ -69,10 +73,14 @@ if __name__ == "__main__":
     )
     parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
     parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
+    parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS tokens given as strings")
     args = parser.parse_args()
+
+    wrapped_callback = partial(callback, extra_eos_tokens=args.extra_eos_tokens)
+
     pfgen.run_tasks(
         args.mode,
-        callback,
+        wrapped_callback,
         engine="openai-api",
         model=args.model,
         temperature=args.temperature,
