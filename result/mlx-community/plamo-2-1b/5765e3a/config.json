@@ -1,0 +1,1 @@
+{"engine": "openai-api", "max_tokens": 300, "mode": "completion", "model": "mlx-community/plamo-2-1b", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 0.0}

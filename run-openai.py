@@ -74,7 +74,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
     parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
-    parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS tokens given as strings")
+    parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS strings")
     args = parser.parse_args()
 
     wrapped_callback = partial(callback, extra_eos_tokens=args.extra_eos_tokens)
