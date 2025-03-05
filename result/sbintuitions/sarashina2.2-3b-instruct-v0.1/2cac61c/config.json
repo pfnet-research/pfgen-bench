@@ -1,0 +1,1 @@
+{"engine": "vllm", "max_tokens": 300, "mode": "qa", "model": "sbintuitions/sarashina2.2-3b-instruct-v0.1", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}
