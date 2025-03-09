@@ -612,7 +612,7 @@ If you use this repository, please cite the following paper:
   doi={10.51094/jxiv.1008},
   year={2024}
 }
-@preprint{Imos2024-judge-free,
+@preprint{Imos2025-judge-free,
   title={{A Judge-free LLM Open-ended Generation Benchmark Based on the Distributional Hypothesis}},
   author={Kentaro Imajo and Masanori Hirano and Shuji Suzuki and Hiroaki Mikami},
   year={2025},
