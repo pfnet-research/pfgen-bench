@@ -39,6 +39,7 @@ def callback(
                     model=params["model"],
                     max_tokens=params.get("max_tokens", 500),
                     temperature=temperature,
+                    top_p=params["top_p"],
                     stop=stop,
                     **kwargs,
                 )
@@ -48,6 +49,7 @@ def callback(
                     model=params["model"],
                     max_tokens=params.get("max_tokens", 500),
                     temperature=temperature,
+                    top_p=params["top_p"],
                     stop=stop,
                     **kwargs,
                 )
@@ -74,6 +76,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
     parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
+    parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
     parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS strings")
     args = parser.parse_args()
 
@@ -85,5 +88,6 @@ if __name__ == "__main__":
         engine="openai-api",
         model=args.model,
         temperature=args.temperature,
+        top_p=args.top_p,
         num_trials=args.num_trials,
     )
