@@ -25,6 +25,8 @@ class Callback:
             )
             self.tokenizer.add_eos_token = False
             model_kwargs = {}
+            if params.get("dtype", None):
+                model_kwargs["torch_dtype"] = params["dtype"]
             device = params.get("_device", "cpu")
             if device == "auto":
                 model_kwargs["device_map"] = "auto"
@@ -139,8 +141,11 @@ if __name__ == "__main__":
     parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
     parser.add_argument("--batch-size", type=int, default=1, help="Batch size for sampling.")
     parser.add_argument("--device", type=str, default="auto", help="Device for sampling.")
+    parser.add_argument("--dtype", type=str, default="", help="Data type.")
     args = parser.parse_args()
     kwargs = {}
+    if args.dtype:
+        kwargs["dtype"] = args.dtype
     if args.mode != "completion" and os.path.exists("chat_templates.json"):
         with open("chat_templates.json") as f:
             chat_templates = json.load(f)
