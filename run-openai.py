@@ -41,25 +41,21 @@ def callback(
                 stop.extend(extra_eos_tokens)
                 stop = list(set(stop))
             if mode in ["qa", "chat"]:
-                result = None
-                while result is None:
-                    results = client.chat.completions.create(
-                        model=params["model"],
-                        max_tokens=params.get("max_tokens", 500),
-                        temperature=temperature,
-                        top_p=params["top_p"],
-                        stop=stop,
-                        **kwargs,
-                    )
-                    result = results.choices[0].message.content
-                    if result is not None and len(result.replace("\n", "")) == 0:
-                        result = None
-                yield result.removeprefix("A:").strip()
+                results = client.chat.completions.create(
+                    model=params["model"],
+                    max_tokens=params.get("max_tokens", 500),
+                    temperature=temperature,
+                    top_p=params["top_p"],
+                    stop=stop,
+                    **kwargs,
+                )
+                yield results.choices[0].message.content.removeprefix("A:").strip()
             elif mode == "completion":
                 results = client.completions.create(
                     model=params["model"],
                     max_tokens=params.get("max_tokens", 500),
                     temperature=temperature,
+                    top_p=params["top_p"],
                     stop=stop,
                     top_p=params["top_p"],
                     stream=False,

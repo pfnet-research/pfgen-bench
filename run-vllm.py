@@ -45,6 +45,7 @@ class Callback:
                 tensor_parallel_size=tensor_parallel_size,
                 trust_remote_code=True,
                 gpu_memory_utilization=0.95,
+                quantization=params["quantization"],
                 **kwargs,
             )
             # Workaround for multiple vLLM versions.
@@ -145,12 +146,14 @@ if __name__ == "__main__":
     parser.add_argument("--max-tokens", type=int, default=0, help="Maximum number of tokens.")
     parser.add_argument("--prefix", type=str, default="", help="Prefix for the prompt.")
     parser.add_argument("--dtype", type=str, default="", help="Data type.")
+    parser.add_argument("--quantization", type=str, default=None, help="Quantization method.")
     args = parser.parse_args()
     kwargs = {}
     if args.max_tokens:
         kwargs["_max_tokens"] = args.max_tokens
     if args.dtype:
         kwargs["dtype"] = args.dtype
+    kwargs["quantization"] = args.quantization
     if args.prefix:
         kwargs["prefix"] = args.prefix
     if args.mode != "completion" and os.path.exists("chat_templates.json"):
