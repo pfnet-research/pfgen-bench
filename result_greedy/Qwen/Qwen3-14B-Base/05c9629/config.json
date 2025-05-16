@@ -1,1 +1,1 @@
-{"engine": "openai-api", "max_tokens": 300, "mode": "completion", "model": "Qwen/Qwen3-14B-Base", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 0.0}
+{"engine": "openai-api", "max_tokens": 300, "mode": "completion", "model": "Qwen/Qwen3-14B-Base", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 0.0, "add_no_think": true}
