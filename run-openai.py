@@ -9,7 +9,10 @@ import pfgen
 
 
 def callback(
-        tasks: list[dict[str, str]], params: dict[str, typing.Any], extra_eos_tokens: list[str] | None, add_no_think: bool,
+    tasks: list[dict[str, str]],
+    params: dict[str, typing.Any],
+    extra_eos_tokens: list[str] | None,
+    add_no_think: bool,
 ) -> typing.Iterator[str | None]:
     mode = params["mode"]
     temperature = params["temperature"]
@@ -57,7 +60,6 @@ def callback(
                     temperature=temperature,
                     top_p=params["top_p"],
                     stop=stop,
-                    top_p=params["top_p"],
                     stream=False,
                     **kwargs,
                 )
@@ -86,10 +88,18 @@ if __name__ == "__main__":
     parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
     parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
     parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS strings")
-    parser.add_argument("--enable-thinking", action="store_true", help="Enable reasoning when generation")
+    parser.add_argument(
+        "--enable-thinking",
+        action="store_true",
+        help="Enable reasoning when generation",
+    )
     args = parser.parse_args()
 
-    wrapped_callback = partial(callback, extra_eos_tokens=args.extra_eos_tokens, add_no_think=not args.enable_thinking)
+    wrapped_callback = partial(
+        callback,
+        extra_eos_tokens=args.extra_eos_tokens,
+        add_no_think=not args.enable_thinking,
+    )
 
     pfgen.run_tasks(
         args.mode,
