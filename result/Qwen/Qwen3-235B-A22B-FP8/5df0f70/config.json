@@ -1,1 +1,0 @@
-{"enable_thinking": true, "engine": "hf", "max_tokens": 300, "mode": "chat", "model": "Qwen/Qwen3-235B-A22B-FP8", "num_examples": 20, "stop": ["Q:"], "temperature": 1.0, "top_p": 0.98}
