@@ -89,16 +89,16 @@ if __name__ == "__main__":
     parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
     parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS strings")
     parser.add_argument(
-        "--enable-thinking",
+        "--disable-thinking",
         action="store_true",
-        help="Enable reasoning when generation",
+        help="Disable reasoning when generation by Qwen3 models",
     )
     args = parser.parse_args()
 
     wrapped_callback = partial(
         callback,
         extra_eos_tokens=args.extra_eos_tokens,
-        add_no_think=not args.enable_thinking,
+        add_no_think=args.disable_thinking,
     )
 
     pfgen.run_tasks(
@@ -109,5 +109,5 @@ if __name__ == "__main__":
         temperature=args.temperature,
         top_p=args.top_p,
         num_trials=args.num_trials,
-        enable_thinking=args.enable_thinking,
+        enable_thinking=not args.disable_thinking,
     )
