@@ -6,7 +6,17 @@ authors = [
     {name = "imos", email = "173752+imos@users.noreply.github.com"}
 ]
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "accelerate>=1.6.0",
+    "llmcompressor>=0.3.0",
+    "numba>=0.61.2",
+    "numpy>=1.26.4",
+    "openai>=1.72.0",
+    "packaging>=25.0",
+    "scipy>=1.15.2",
+    "setuptools>=80.1.0",
+    "torch>=2.6.0",
+]
 
 [tool.black]
 line-length = 100
