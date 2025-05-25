@@ -6,7 +6,10 @@ authors = [
     {name = "imos", email = "173752+imos@users.noreply.github.com"}
 ]
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "google-cloud-aiplatform==1.71.1",
+    "vertexai>=1.71.1",
+]
 
 [tool.black]
 line-length = 100
@@ -28,3 +31,6 @@ python_version = "3.10"
 ignore_missing_imports = true
 disallow_untyped_defs = true
 strict_optional = true
+
+[tool.uv.workspace]
+members = ["eval/run-gemini"]
