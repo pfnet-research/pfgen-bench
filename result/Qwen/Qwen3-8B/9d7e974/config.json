@@ -1,0 +1,1 @@
+{"enable_thinking": false, "engine": "openai-api", "max_tokens": 300, "mode": "completion", "model": "Qwen/Qwen3-8B", "num_examples": 20, "stop": ["Q:", "\n\n"], "temperature": 1.0, "top_p": 0.98}
