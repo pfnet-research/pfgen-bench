@@ -33,7 +33,7 @@ class Callback:
                 m = params["_max_tokens"]
                 kwargs["max_num_batched_tokens"] = m
                 kwargs["max_model_len"] = min(m, model_max_tokens or m, model_seq_length or m)
-            if kwargs["tensor_parallel_size"] is not None:
+            if kwargs["tensor_parallel_size"] > 0:
                 tensor_parallel_size = kwargs["tensor_parallel_size"]
             else:
                 tensor_parallel_size = math.gcd(
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--prefix", type=str, default="", help="Prefix for the prompt.")
     parser.add_argument("--dtype", type=str, default="", help="Data type.")
     parser.add_argument(
-        "--tensor-parallel-size", type=int, default=None, help="Tensor Parallel Size."
+        "--tensor-parallel-size", type=int, default=-1, help="Tensor Parallel Size."
     )
     parser.add_argument("--quantization", type=str, default=None, help="Quantization method.")
     args = parser.parse_args()
