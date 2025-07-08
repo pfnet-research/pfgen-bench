@@ -33,13 +33,16 @@ class Callback:
                 m = params["_max_tokens"]
                 kwargs["max_num_batched_tokens"] = m
                 kwargs["max_model_len"] = min(m, model_max_tokens or m, model_seq_length or m)
-            tensor_parallel_size = math.gcd(
-                torch.cuda.device_count(),
-                math.gcd(
-                    getattr(config, "num_attention_heads", 720720),
-                    getattr(config, "num_key_value_heads", 720720),
-                ),
-            )
+            if kwargs["tensor_parallel_size"] is not None:
+                tensor_parallel_size = kwargs["tensor_parallel_size"]
+            else:
+                tensor_parallel_size = math.gcd(
+                    torch.cuda.device_count(),
+                    math.gcd(
+                        getattr(config, "num_attention_heads", 720720),
+                        getattr(config, "num_key_value_heads", 720720),
+                    ),
+                )
             self.llm = LLM(
                 model=model,
                 tensor_parallel_size=tensor_parallel_size,
@@ -146,6 +149,9 @@ if __name__ == "__main__":
     parser.add_argument("--max-tokens", type=int, default=0, help="Maximum number of tokens.")
     parser.add_argument("--prefix", type=str, default="", help="Prefix for the prompt.")
     parser.add_argument("--dtype", type=str, default="", help="Data type.")
+    parser.add_argument(
+        "--tensor-parallel-size", type=int, default=None, help="Tensor Parallel Size."
+    )
     parser.add_argument("--quantization", type=str, default=None, help="Quantization method.")
     args = parser.parse_args()
     kwargs = {}
@@ -162,6 +168,9 @@ if __name__ == "__main__":
             for t in chat_templates:
                 if args.model in t["models"]:
                     kwargs["chat_template"] = t["chat_template"]
+
+    kwargs["tensor_parallel_size"] = args.tensor_parallel_size
+
     pfgen.run_tasks(
         args.mode,
         Callback(),
