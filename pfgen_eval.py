@@ -206,7 +206,7 @@ class Executor(object):
         with open(score_path, "w") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        result["num_trials"] = min([len(x) for x in data.values()])
+        result["num_trials"] = max([len(x) for x in data.values()])
         task_scores = [[a["scores"]["average"] for a in x] for x in data.values()]
         trial_scores = [sum(x) / len(x) for x in zip(*task_scores)]
         result["score"], result["score_std"] = mean_std(trial_scores)
@@ -246,6 +246,7 @@ class Executor(object):
             r["score"], r["score_std"] = mean_std([a["scores"]["average"] for a in answers])
             r["length"], r["length_std"] = mean_std([len(a["answer"]) for a in answers], 1)
             r["scores"] = scores
+            r["num_valid_trials"] = len(answers)
             r["samples"] = samples
             result_questions[question_id] = r
         result["scores"] = scores_all
@@ -324,7 +325,8 @@ class Executor(object):
                             "answers": [],
                         },
                     )
-                    answers[d["question"]][output_path]["answers"].append(d)
+                    if d["generated"] is True:
+                        answers[d["question"]][output_path]["answers"].append(d)
             # Check if the output needs to be updated.
             if not force:
                 for question, data in answers.items():

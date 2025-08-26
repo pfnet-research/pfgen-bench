@@ -59,6 +59,7 @@ QUESTION_DATA: str = r"""
 {"question": "神在月とは何ですか？", "answer": "神在月とは、旧暦10月のことを指し、全国の八百万の神々が出雲大社に集まり、縁結びの神議り（かむはかり）が行われるとされる月です。出雲地方では「神在月」と呼びますが、他の地域では「神無月」と呼ばれます。"}
 """  # noqa: E501
 QUESTIONS: list[dict[str, str]] = []
+FAILED_TO_GEN_MSG = "(FAILED TO GENERATE AN ANSWER)"
 
 
 def get_questions() -> list[dict[str, str]]:
@@ -185,12 +186,13 @@ def run_tasks(
                     if a is None or a == "":
                         print(f"Failed to get an answer for: {q}", file=sys.stderr)
                         time.sleep(3)
-                        continue
-                    if mode in ("chat", "qa") and "A:" in a:
+                        a = FAILED_TO_GEN_MSG
+                    elif mode in ("chat", "qa") and "A:" in a:
                         a = a.split("A:", 1)[1].strip()
                     result = {
                         "question": q,
                         "answer": a.strip(),
+                        "generated": a != FAILED_TO_GEN_MSG,
                         "timestamp": datetime.datetime.now().isoformat(),
                     }
                     output = json.dumps(result, ensure_ascii=False)
