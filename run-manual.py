@@ -36,10 +36,19 @@ if __name__ == "__main__":
         default="mistralai/Mistral-7B-v0.1",
         help="Huggingface model name.",
     )
+    parser.add_argument("--num-retries", type=int, default=10, help="Number of retries.")
+    parser.add_argument(
+        "--ignore-failure",
+        action="store_true",
+        default=False,
+        help="Do not throw an exception if answer generation fails.",
+    )
     args = parser.parse_args()
     pfgen.run_tasks(
         args.mode,
         callback,
         engine="manual",
         model=args.model,
+        num_retries=args.num_retries,
+        ignore_failure=args.ignore_failure,
     )

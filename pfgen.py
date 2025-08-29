@@ -131,6 +131,8 @@ def run_tasks(
     num_examples: int = 20,
     num_trials: int = 100,
     seed: str = "",
+    num_retries: int = 10,
+    ignore_failure: bool = False,
     **parameters: typing.Any,
 ) -> None:
     questions = get_questions()
@@ -159,7 +161,7 @@ def run_tasks(
         print(f"Starting a trial: {trial}", file=sys.stderr)
         if buf == "":
             outputs: dict[str, str] = {}
-            for _ in range(10):
+            for _ in range(num_retries):
                 tasks: list[dict[str, str]] = []
                 task_questions: list[str] = []
                 for q_info in questions:
@@ -185,8 +187,9 @@ def run_tasks(
                 for q, a in zip(task_questions, callback(tasks, parameters)):
                     if a is None or a == "":
                         print(f"Failed to get an answer for: {q}", file=sys.stderr)
+                        if ignore_failure:
+                            a = FAILED_TO_GEN_MSG
                         time.sleep(3)
-                        a = FAILED_TO_GEN_MSG
                     elif mode in ("chat", "qa") and "A:" in a:
                         a = a.split("A:", 1)[1].strip()
                     result = {

@@ -142,6 +142,13 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=1, help="Batch size for sampling.")
     parser.add_argument("--device", type=str, default="auto", help="Device for sampling.")
     parser.add_argument("--dtype", type=str, default="", help="Data type.")
+    parser.add_argument("--num-retries", type=int, default=10, help="Number of retries.")
+    parser.add_argument(
+        "--ignore-failure",
+        action="store_true",
+        default=False,
+        help="Do not throw an exception if answer generation fails.",
+    )
     args = parser.parse_args()
     kwargs = {}
     if args.dtype:
@@ -160,6 +167,8 @@ if __name__ == "__main__":
         num_trials=args.num_trials,
         temperature=args.temperature,
         top_p=args.top_p,
+        num_retries=args.num_retries,
+        ignore_failure=args.ignore_failure,
         _path=args.path,
         _batch_size=args.batch_size,
         _device=args.device if torch.cuda.is_available() else "cpu",

@@ -93,6 +93,13 @@ if __name__ == "__main__":
         action="store_true",
         help="Disable reasoning when generation by Qwen3 models",
     )
+    parser.add_argument("--num-retries", type=int, default=10, help="Number of retries.")
+    parser.add_argument(
+        "--ignore-failure",
+        action="store_true",
+        default=False,
+        help="Do not throw an exception if answer generation fails.",
+    )
     args = parser.parse_args()
 
     wrapped_callback = partial(
@@ -110,4 +117,6 @@ if __name__ == "__main__":
         top_p=args.top_p,
         num_trials=args.num_trials,
         enable_thinking=not args.disable_thinking,
+        num_retries=args.num_retries,
+        ignore_failure=args.ignore_failure,
     )

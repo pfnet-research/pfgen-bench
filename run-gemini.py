@@ -84,6 +84,13 @@ if __name__ == "__main__":
     )
     parser.add_argument("--temperature", type=float, default=1.0, help="Temperature for sampling.")
     parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
+    parser.add_argument("--num-retries", type=int, default=10, help="Number of retries.")
+    parser.add_argument(
+        "--ignore-failure",
+        action="store_true",
+        default=False,
+        help="Do not throw an exception if answer generation fails.",
+    )
     args = parser.parse_args()
     pfgen.run_tasks(
         args.mode,
@@ -94,4 +101,6 @@ if __name__ == "__main__":
         temperature=args.temperature,
         num_trials=args.num_trials,
         max_tokens=3000,
+        num_retries=args.num_retries,
+        ignore_failure=args.ignore_failure,
     )

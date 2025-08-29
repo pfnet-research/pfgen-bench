@@ -153,6 +153,13 @@ if __name__ == "__main__":
         "--tensor-parallel-size", type=int, default=-1, help="Tensor Parallel Size."
     )
     parser.add_argument("--quantization", type=str, default=None, help="Quantization method.")
+    parser.add_argument("--num-retries", type=int, default=10, help="Number of retries.")
+    parser.add_argument(
+        "--ignore-failure",
+        action="store_true",
+        default=False,
+        help="Do not throw an exception if answer generation fails.",
+    )
     args = parser.parse_args()
     kwargs = {}
     if args.max_tokens:
@@ -180,6 +187,8 @@ if __name__ == "__main__":
         num_trials=args.num_trials,
         temperature=args.temperature,
         top_p=args.top_p,
+        num_retries=args.num_retries,
+        ignore_failure=args.ignore_failure,
         _path=args.path,
         **kwargs,
     )
