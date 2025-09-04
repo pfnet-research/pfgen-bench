@@ -189,8 +189,10 @@ def run_tasks(
                         print(f"Failed to get an answer for: {q}", file=sys.stderr)
                         if ignore_failure:
                             a = FAILED_TO_GEN_MSG
-                        time.sleep(3)
-                    elif mode in ("chat", "qa") and "A:" in a:
+                        else:
+                            time.sleep(3)
+                            continue
+                    if mode in ("chat", "qa") and "A:" in a:
                         a = a.split("A:", 1)[1].strip()
                     result = {
                         "question": q,
