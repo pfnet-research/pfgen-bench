@@ -6,6 +6,7 @@ import typing
 
 import torch
 import transformers
+import vllm
 from transformers import AutoConfig
 from vllm import LLM, SamplingParams
 
@@ -110,7 +111,7 @@ class Callback:
                 raise ValueError(f"Unsupported mode: {mode}")
 
         outputs = llm.generate(
-            prompt_token_ids=[task["prompt_token_ids"] for task in tasks],
+            prompts=[vllm.inputs.TokensPrompt(prompt_token_ids=task["prompt_token_ids"]) for task in tasks],
             sampling_params=sampling_params,
         )
         for output in outputs:
