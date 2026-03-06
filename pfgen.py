@@ -143,7 +143,8 @@ def run_tasks(
     parameters["stop"] = ["Q:"]
     if mode == "completion":
         parameters["stop"].append("\n\n")
-    parameters["max_tokens"] = 300
+    # Respect caller-specified max_tokens; fall back to 300 otherwise
+    parameters.setdefault("max_tokens", 300)
     config_parameters = [(k, v) for k, v in parameters.items() if not k.startswith("_")]
     config = json.dumps(dict(sorted(config_parameters)), ensure_ascii=False)
     config_hash = hashlib.sha1(config.encode()).hexdigest()[:7]
