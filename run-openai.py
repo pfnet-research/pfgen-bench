@@ -46,7 +46,7 @@ def callback(
             if mode in ["qa", "chat"]:
                 results = client.chat.completions.create(
                     model=params["model"],
-                    max_tokens=params.get("max_tokens", 500),
+                    max_tokens=params["max_tokens"],
                     temperature=temperature,
                     top_p=params["top_p"],
                     stop=stop,
@@ -56,7 +56,7 @@ def callback(
             elif mode == "completion":
                 results = client.completions.create(
                     model=params["model"],
-                    max_tokens=params.get("max_tokens", 500),
+                    max_tokens=params["max_tokens"],
                     temperature=temperature,
                     top_p=params["top_p"],
                     stop=stop,
