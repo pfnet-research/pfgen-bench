@@ -46,7 +46,7 @@ def callback(
             if mode in ["qa", "chat"]:
                 results = client.chat.completions.create(
                     model=params["model"],
-                    max_tokens=params.get("max_tokens", 500),
+                    max_tokens=params["max_tokens"],
                     temperature=temperature,
                     top_p=params["top_p"],
                     stop=stop,
@@ -56,7 +56,7 @@ def callback(
             elif mode == "completion":
                 results = client.completions.create(
                     model=params["model"],
-                    max_tokens=params.get("max_tokens", 500),
+                    max_tokens=params["max_tokens"],
                     temperature=temperature,
                     top_p=params["top_p"],
                     stop=stop,
@@ -87,6 +87,11 @@ if __name__ == "__main__":
     parser.add_argument("--temperature", type=float, default=0.7, help="Temperature for sampling.")
     parser.add_argument("--num-trials", type=int, default=10, help="Number of trials to run.")
     parser.add_argument("--top-p", type=float, default=0.98, help="Top-p for sampling.")
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        help="Maximum tokens to generate (overrides default).",
+    )
     parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS strings")
     parser.add_argument(
         "--disable-thinking",
@@ -108,6 +113,11 @@ if __name__ == "__main__":
         add_no_think=args.disable_thinking,
     )
 
+    # Prepare optional kwargs
+    extra_kwargs = {}
+    if args.max_tokens is not None:
+        extra_kwargs["max_tokens"] = args.max_tokens
+
     pfgen.run_tasks(
         args.mode,
         wrapped_callback,
@@ -119,4 +129,5 @@ if __name__ == "__main__":
         enable_thinking=not args.disable_thinking,
         num_retries=args.num_retries,
         ignore_failure=args.ignore_failure,
+        **extra_kwargs,
     )

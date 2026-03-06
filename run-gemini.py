@@ -25,7 +25,7 @@ def callback(
                 responses = model.generate_content(
                     [task["prompt"]],
                     generation_config={
-                        "max_output_tokens": params.get("max_tokens", 500),
+                        "max_output_tokens": params["max_tokens"],
                         "temperature": params.get("temperature", 1.0),
                         "top_p": params.get("top_p", 1.0),
                     },
@@ -100,7 +100,6 @@ if __name__ == "__main__":
         multi_choice=args.multi_choice,
         temperature=args.temperature,
         num_trials=args.num_trials,
-        max_tokens=3000,
         num_retries=args.num_retries,
         ignore_failure=args.ignore_failure,
     )

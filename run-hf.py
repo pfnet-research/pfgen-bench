@@ -91,7 +91,7 @@ class Callback:
                 do_sample = params["temperature"] > 1e-6
                 outputs = model.generate(
                     **{k: v.to(model.device) for k, v in inputs.items()},
-                    max_new_tokens=params.get("max_tokens", 300),
+                    max_new_tokens=params["max_tokens"],
                     do_sample=do_sample,
                     temperature=params["temperature"] if do_sample else None,
                     top_p=params["top_p"] if do_sample else None,

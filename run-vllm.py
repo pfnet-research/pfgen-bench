@@ -69,7 +69,7 @@ class Callback:
         sampling_params = SamplingParams(
             temperature=params["temperature"],
             top_p=params["top_p"],
-            max_tokens=params.get("max_tokens", 300),
+            max_tokens=params["max_tokens"],
             skip_special_tokens=False,
             stop=stop,
             seed=tasks[0].get("seed", None),
