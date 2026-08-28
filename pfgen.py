@@ -140,9 +140,14 @@ def run_tasks(
     parameters["model"] = model
     parameters["mode"] = mode
     parameters["num_examples"] = num_examples
-    parameters["stop"] = ["Q:"]
-    if mode == "completion":
-        parameters["stop"].append("\n\n")
+    stop = parameters.get("stop")
+    if stop is None:
+        stop = ["Q:"]
+        if mode == "completion":
+            stop.append("\n\n")
+    else:
+        stop = list(stop)
+    parameters["stop"] = stop
     # Respect caller-specified max_tokens; fall back to 300 otherwise
     parameters.setdefault("max_tokens", 300)
     config_parameters = [(k, v) for k, v in parameters.items() if not k.startswith("_")]
