@@ -121,6 +121,11 @@ if __name__ == "__main__":
         type=int,
         help="Maximum tokens to generate (overrides default).",
     )
+    parser.add_argument(
+        "--no-extra-stop",
+        action="store_true",
+        help="Disable the benchmark default stop strings.",
+    )
     parser.add_argument("--extra-eos-tokens", type=str, nargs="+", help="Extra EOS strings")
     parser.add_argument(
         "--disable-thinking",
@@ -159,5 +164,6 @@ if __name__ == "__main__":
         enable_thinking=not args.disable_thinking,
         num_retries=args.num_retries,
         ignore_failure=args.ignore_failure,
+        stop=[] if args.no_extra_stop else None,
         **extra_kwargs,
     )
